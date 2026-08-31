@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #F3F4FF;
+  color: #091E42;
+}
+
+/* Reporte imprimible / "Descargar Reporte Completo (PDF)" -----------------
+   Al imprimir (o guardar como PDF desde el diálogo de impresión), ocultamos
+   todo lo que no forma parte del reporte (header, botones de acción, la
+   tarjeta para redes sociales) y dejamos el bloque de resultados limpio. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+  }
+
+  /* El informe de resultados vive sobre el fondo oscuro corporativo de
+     ADIPA en pantalla (estilo "Wrapped"), pero al imprimir forzamos texto
+     oscuro sobre blanco en todo el bloque -y sus hijos-, para no gastar
+     tinta imprimiendo un fondo navy de página completa ni perder
+     legibilidad en el PDF. */
+  .printable-report,
+  .printable-report * {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #091E42 !important;
+    box-shadow: none !important;
+    border-color: #DFD5FF !important;
+    backdrop-filter: none !important;
+  }
+
+  .printable-report {
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+}
