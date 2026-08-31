@@ -39,55 +39,66 @@ const SOCIAL_LINKS = [
   { name: "Facebook", url: "https://www.facebook.com/Adipa-102577181991776" },
 ];
 
-// TODO: reemplazar por la URL real de la plataforma "ADIPA 2" cuando esté
-// disponible. Mientras tanto, apunta al sitio principal de ADIPA.
-const ADIPA_2_URL = "https://adipa.cl/";
-
 function buildFallbackExplanation(school, subspecialty) {
   return `Tu perfil de respuestas mostró una fuerte afinidad con ${school.name}, especialmente en ${subspecialty.label}. Tus intereses, conocimientos y estilo de trabajo apuntan a esta área como tu mejor punto de partida dentro de ADIPA.`;
 }
 
 function CardSkeleton() {
   return (
-    <div className="flex animate-pulse flex-col gap-3 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-      <div className="aspect-[16/10] w-full bg-white/10" />
+    <div className="flex animate-pulse flex-col gap-3 overflow-hidden rounded-2xl bg-white shadow-md">
+      <div className="aspect-[16/10] w-full bg-primary-gray" />
       <div className="flex flex-col gap-2 p-4">
-        <div className="h-3 w-3/4 rounded-full bg-white/15" />
-        <div className="h-3 w-1/2 rounded-full bg-white/10" />
+        <div className="h-3 w-3/4 rounded-full bg-primary-gray" />
+        <div className="h-3 w-1/2 rounded-full bg-primary-gray" />
       </div>
     </div>
   );
 }
 
+// Tarjeta clara para Cursos/Programas/Diplomados y Seminarios: imagen de
+// portada de borde a borde arriba, badge de categoría superpuesto, y
+// (cuando adipa.cl lo entregue) fecha de inicio en acento corporativo.
+// Fondo blanco -no oscuro-, para que resalte sobre el bloque navy del
+// informe y el texto quede siempre oscuro-sobre-claro.
 function OfferCard({ item, tagLabel, ctaLabel }) {
   return (
     <a
       href={item.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/5 shadow-md backdrop-blur-md transition hover:border-primary-cyan hover:bg-white/10 hover:shadow-lg"
+      className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
     >
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-primary-purple/40 to-primary-cyan/30">
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-primary-gray to-secondary-light">
         {item.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={item.imageUrl}
             alt=""
             loading="lazy"
+            referrerPolicy="no-referrer"
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-3xl">🧠</div>
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="rounded-full bg-white/70 px-4 py-1.5 text-xs font-semibold text-primary-purple">
+              ADIPA
+            </span>
+          </div>
         )}
-        <span className="absolute left-3 top-3 rounded-full bg-secondary-navy/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-secondary-light backdrop-blur-md">
+        <span className="absolute left-3 top-3 rounded-full bg-primary-purple px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
           {tagLabel}
         </span>
+        {item.startDateLabel && (
+          <span className="absolute right-3 top-3 rounded-full bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-purple shadow-sm">
+            Inicia {item.startDateLabel}
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-3 p-4">
-        <h3 className="text-sm font-semibold leading-snug text-white sm:text-base">
+        <h3 className="text-sm font-semibold leading-snug text-secondary-navy sm:text-base">
           {item.title}
         </h3>
-        <span className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-primary-cyan">
+        <span className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-primary-purple">
           {ctaLabel} →
         </span>
       </div>
@@ -101,9 +112,95 @@ function OfferFallbackLink({ href, label }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="rounded-xl border border-white/15 bg-white/5 p-4 text-sm font-medium text-primary-cyan backdrop-blur-md transition hover:border-primary-cyan hover:bg-white/10"
+      className="rounded-xl bg-white p-4 text-sm font-medium text-primary-purple shadow-md transition hover:shadow-lg"
     >
       {label} →
+    </a>
+  );
+}
+
+function ResourceCardSkeleton() {
+  return (
+    <div className="flex animate-pulse items-center gap-4 rounded-2xl bg-white p-3 shadow-md">
+      <div className="h-16 w-16 flex-shrink-0 rounded-xl bg-primary-gray" />
+      <div className="flex flex-1 flex-col gap-2">
+        <div className="h-3 w-2/3 rounded-full bg-primary-gray" />
+        <div className="h-3 w-1/3 rounded-full bg-primary-gray" />
+      </div>
+    </div>
+  );
+}
+
+// Tarjeta horizontal clara para "Recursos Gratuitos": miniatura a la
+// izquierda, título en negrita al centro, flecha de acción a la derecha.
+function ResourceCard({ item, ctaLabel }) {
+  return (
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group flex items-center gap-4 rounded-2xl bg-white p-3 shadow-md transition hover:-translate-y-0.5 hover:shadow-lg sm:p-4"
+    >
+      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-primary-gray to-secondary-light">
+        {item.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.imageUrl}
+            alt=""
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-2xl">📘</div>
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="text-[10px] font-bold uppercase tracking-wide text-primary-purple">
+          {ctaLabel}
+        </span>
+        <h3 className="truncate text-sm font-bold leading-snug text-secondary-navy sm:whitespace-normal sm:text-base">
+          {item.title}
+        </h3>
+      </div>
+
+      <span className="flex-shrink-0 text-xl font-semibold text-primary-purple transition group-hover:translate-x-0.5">
+        →
+      </span>
+    </a>
+  );
+}
+
+// Banner de suscripción al newsletter real de ADIPA (el mismo formulario
+// vive en el footer de adipa.cl). Abre esa página en una pestaña nueva en
+// vez de simular aquí un formulario que no procesaría la suscripción de
+// verdad.
+function NewsletterBanner() {
+  return (
+    <a
+      href="https://adipa.cl/#newsletter"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group flex items-center gap-4 rounded-2xl bg-secondary-light p-5 shadow-md transition hover:shadow-lg sm:p-6"
+    >
+      <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
+        ✉️
+      </span>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <span className="text-[11px] font-bold uppercase tracking-wide text-primary-purple">
+          ¿Quieres más recursos gratuitos?
+        </span>
+        <h3 className="text-base font-bold text-secondary-navy sm:text-lg">
+          Suscríbete al newsletter
+        </h3>
+        <p className="text-sm text-secondary-navy/70">
+          Seminarios, recursos y novedades cada semana.
+        </p>
+      </div>
+      <span className="flex-shrink-0 text-2xl font-semibold text-primary-purple transition group-hover:translate-x-0.5">
+        →
+      </span>
     </a>
   );
 }
@@ -328,26 +425,19 @@ export default function ResultScreen({ userData, quizResult, onRestart }) {
             </a>
           </section>
 
-          {/* ¿Quieres profundizar? Descarga gratuita */}
+          {/* Recursos Gratuitos */}
           <section className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold text-white sm:text-xl">
-              ¿Quieres profundizar? Descarga gratuita
-            </h2>
+            <h2 className="text-lg font-semibold text-white sm:text-xl">Recursos Gratuitos</h2>
             {loading ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-3">
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <CardSkeleton key={`resource-skeleton-${index}`} />
+                  <ResourceCardSkeleton key={`resource-skeleton-${index}`} />
                 ))}
               </div>
             ) : resources.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-3">
                 {resources.map((resource) => (
-                  <OfferCard
-                    key={resource.id}
-                    item={resource}
-                    tagLabel="Descarga Gratuita"
-                    ctaLabel="Descargar en adipa.cl"
-                  />
+                  <ResourceCard key={resource.id} item={resource} ctaLabel="Descarga Gratuita" />
                 ))}
               </div>
             ) : (
@@ -357,6 +447,9 @@ export default function ResultScreen({ userData, quizResult, onRestart }) {
               />
             )}
           </section>
+
+          {/* Newsletter */}
+          <NewsletterBanner />
         </div>
       </div>
 
@@ -375,22 +468,6 @@ export default function ResultScreen({ userData, quizResult, onRestart }) {
       {/* Adipados Podcast + TikTok */}
       <PodcastWidget episodes={podcastEpisodes} />
       <TikTokModule />
-
-      {/* Profundiza con ADIPA 2 */}
-      <section className="flex flex-col gap-3 rounded-2xl bg-secondary-navy p-6 text-center text-white shadow-md sm:p-8">
-        <h2 className="text-lg font-semibold sm:text-xl">Profundiza con ADIPA 2</h2>
-        <p className="text-sm text-white/80 sm:text-base">
-          Continúa tu formación en la comunidad y plataforma avanzada de ADIPA.
-        </p>
-        <a
-          href={ADIPA_2_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mx-auto rounded-xl bg-white px-6 py-2.5 text-sm font-semibold text-secondary-navy shadow-md transition hover:opacity-90"
-        >
-          Accede a la experiencia de aprendizaje continuo en ADIPA 2
-        </a>
-      </section>
 
       {/* Acciones del reporte + footer institucional */}
       <div className="no-print flex flex-col items-center gap-3">

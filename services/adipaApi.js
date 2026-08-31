@@ -256,7 +256,27 @@ function mapWpItem(item) {
     url: item.link,
     excerpt: stripHtml(item?.excerpt?.rendered ?? ""),
     imageUrl: extractFeaturedImage(item),
+    // Fecha de inicio real del curso/seminario, cuando adipa.cl la exponga
+    // en el futuro (ej. vía un campo ACF). Hoy la API pública no entrega
+    // este dato para "product"/"webinars", así que queda en null y la UI
+    // simplemente no muestra el badge de fecha -nunca se inventa una-.
+    startDateLabel: item?.acf?.fecha_inicio_label ?? null,
   };
+}
+
+// El embed de Spotify de cada episodio de "Adipados" viaja dentro del HTML
+// de `content.rendered` (adipa.cl incrusta un iframe de
+// open.spotify.com/embed/episode/<id>). Lo extraemos para poder llevar a
+// la gente directo al episodio real en Spotify, en vez de a adipa.cl.
+function extractSpotifyEpisodeUrl(html) {
+  const match = String(html ?? "").match(/open\.spotify\.com\/embed\/episode\/([a-zA-Z0-9]+)/);
+  return match ? `https://open.spotify.com/episode/${match[1]}` : null;
+}
+
+function mapPodcastItem(item) {
+  const base = mapWpItem(item);
+  const spotifyUrl = extractSpotifyEpisodeUrl(item?.content?.rendered) ?? ADIPADOS_SPOTIFY_URL;
+  return { ...base, spotifyUrl };
 }
 
 function buildTaxonomyParams(subcategoryId, limit) {
@@ -378,15 +398,18 @@ export async function getPodcastEpisodesBySubspecialty(subcategoryId, { limit = 
   const meta = SUBSPECIALTIES[subcategoryId];
   if (!meta) return { items: [], fallbackUrl };
 
+  // "content" es necesario aquí (a diferencia de programas/seminarios/
+  // recursos) porque de ahí extraemos el iframe de Spotify con el episodio
+  // real -ver extractSpotifyEpisodeUrl-.
   const params = new URLSearchParams();
   if (meta.interests?.length) params.set("interests", meta.interests.join(","));
   params.set("per_page", String(limit));
   params.set("_embed", "wp:featuredmedia");
-  params.set("_fields", "id,title,link,excerpt,_embedded");
+  params.set("_fields", "id,title,link,excerpt,content,_embedded");
 
   try {
     const data = await fetchAdipa("/adipados", params);
-    let items = Array.isArray(data) ? data.map(mapWpItem) : [];
+    let items = Array.isArray(data) ? data.map(mapPodcastItem) : [];
 
     // Si esta sub-especialidad no tiene episodios propios etiquetados aún,
     // mostramos los episodios más recientes del podcast como respaldo, en
@@ -395,9 +418,9 @@ export async function getPodcastEpisodesBySubspecialty(subcategoryId, { limit = 
       const recentParams = new URLSearchParams();
       recentParams.set("per_page", String(limit));
       recentParams.set("_embed", "wp:featuredmedia");
-      recentParams.set("_fields", "id,title,link,excerpt,_embedded");
+      recentParams.set("_fields", "id,title,link,excerpt,content,_embedded");
       const recentData = await fetchAdipa("/adipados", recentParams);
-      items = Array.isArray(recentData) ? recentData.map(mapWpItem) : [];
+      items = Array.isArray(recentData) ? recentData.map(mapPodcastItem) : [];
     }
 
     return { items, fallbackUrl };
