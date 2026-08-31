@@ -256,12 +256,48 @@ function mapWpItem(item) {
     url: item.link,
     excerpt: stripHtml(item?.excerpt?.rendered ?? ""),
     imageUrl: extractFeaturedImage(item),
+    // El "_embed=wp:featuredmedia" de WordPress no siempre resuelve en los
+    // post types personalizados de adipa.cl (product/webinars/ebooks/
+    // adipados): la API sigue entregando el id en "featured_media" pero sin
+    // adjuntar el objeto de medios en "_embedded". Guardamos el id acá para
+    // que hydrateFeaturedImages() pueda ir a buscar la imagen real como
+    // respaldo cuando esto pasa.
+    featuredMediaId: typeof item?.featured_media === "number" && item.featured_media > 0 ? item.featured_media : null,
     // Fecha de inicio real del curso/seminario, cuando adipa.cl la exponga
     // en el futuro (ej. vía un campo ACF). Hoy la API pública no entrega
     // este dato para "product"/"webinars", así que queda en null y la UI
     // simplemente no muestra el badge de fecha -nunca se inventa una-.
     startDateLabel: item?.acf?.fecha_inicio_label ?? null,
   };
+}
+
+// Respaldo para cuando "_embed=wp:featuredmedia" no trajo la imagen (pasa
+// seguido en los post types personalizados de adipa.cl -ver comentario en
+// mapWpItem-): busca en paralelo el objeto de medios real de WordPress
+// para cada item que tenga featuredMediaId pero no imageUrl.
+async function hydrateFeaturedImages(items) {
+  const pending = items.filter((item) => !item.imageUrl && item.featuredMediaId);
+  if (pending.length === 0) return items;
+
+  const resolved = await Promise.all(
+    pending.map(async (item) => {
+      try {
+        const media = await fetchAdipa(
+          `/media/${item.featuredMediaId}`,
+          new URLSearchParams({ _fields: "source_url,media_details" })
+        );
+        return [item.id, extractFeaturedImage({ _embedded: { "wp:featuredmedia": [media] } })];
+      } catch (error) {
+        console.error("[adipaApi] hydrateFeaturedImages:", error);
+        return [item.id, null];
+      }
+    })
+  );
+
+  const imageById = new Map(resolved);
+  return items.map((item) =>
+    imageById.get(item.id) ? { ...item, imageUrl: imageById.get(item.id) } : item
+  );
 }
 
 // El embed de Spotify de cada episodio de "Adipados" viaja dentro del HTML
@@ -291,7 +327,7 @@ function buildTaxonomyParams(subcategoryId, limit) {
   // "_embedded" debe listarse explícitamente en _fields para que la API no
   // la descarte al filtrar la respuesta.
   params.set("_embed", "wp:featuredmedia");
-  params.set("_fields", "id,title,link,excerpt,_embedded");
+  params.set("_fields", "id,title,link,excerpt,featured_media,_embedded");
 
   return { meta, params };
 }
@@ -328,7 +364,8 @@ export async function getProgramsBySubspecialty(subcategoryId, { limit = 4 } = {
 
   try {
     const data = await fetchAdipa("/product", params);
-    return { items: Array.isArray(data) ? data.map(mapWpItem) : [], fallbackUrl: schoolUrl };
+    const items = await hydrateFeaturedImages(Array.isArray(data) ? data.map(mapWpItem) : []);
+    return { items, fallbackUrl: schoolUrl };
   } catch (error) {
     console.error("[adipaApi] getProgramsBySubspecialty:", error);
     return { items: [], fallbackUrl: schoolUrl };
@@ -351,7 +388,8 @@ export async function getSeminarsBySubspecialty(subcategoryId, { limit = 3 } = {
 
   try {
     const data = await fetchAdipa("/webinars", params);
-    return { items: Array.isArray(data) ? data.map(mapWpItem) : [], fallbackUrl };
+    const items = await hydrateFeaturedImages(Array.isArray(data) ? data.map(mapWpItem) : []);
+    return { items, fallbackUrl };
   } catch (error) {
     console.error("[adipaApi] getSeminarsBySubspecialty:", error);
     return { items: [], fallbackUrl };
@@ -376,7 +414,8 @@ export async function getResourcesBySubspecialty(subcategoryId, { limit = 3 } = 
 
   try {
     const data = await fetchAdipa("/ebooks", params);
-    return { items: Array.isArray(data) ? data.map(mapWpItem) : [], fallbackUrl };
+    const items = await hydrateFeaturedImages(Array.isArray(data) ? data.map(mapWpItem) : []);
+    return { items, fallbackUrl };
   } catch (error) {
     console.error("[adipaApi] getResourcesBySubspecialty:", error);
     return { items: [], fallbackUrl };
@@ -405,11 +444,11 @@ export async function getPodcastEpisodesBySubspecialty(subcategoryId, { limit = 
   if (meta.interests?.length) params.set("interests", meta.interests.join(","));
   params.set("per_page", String(limit));
   params.set("_embed", "wp:featuredmedia");
-  params.set("_fields", "id,title,link,excerpt,content,_embedded");
+  params.set("_fields", "id,title,link,excerpt,content,featured_media,_embedded");
 
   try {
     const data = await fetchAdipa("/adipados", params);
-    let items = Array.isArray(data) ? data.map(mapPodcastItem) : [];
+    let items = await hydrateFeaturedImages(Array.isArray(data) ? data.map(mapPodcastItem) : []);
 
     // Si esta sub-especialidad no tiene episodios propios etiquetados aún,
     // mostramos los episodios más recientes del podcast como respaldo, en
@@ -418,9 +457,11 @@ export async function getPodcastEpisodesBySubspecialty(subcategoryId, { limit = 
       const recentParams = new URLSearchParams();
       recentParams.set("per_page", String(limit));
       recentParams.set("_embed", "wp:featuredmedia");
-      recentParams.set("_fields", "id,title,link,excerpt,content,_embedded");
+      recentParams.set("_fields", "id,title,link,excerpt,content,featured_media,_embedded");
       const recentData = await fetchAdipa("/adipados", recentParams);
-      items = Array.isArray(recentData) ? recentData.map(mapPodcastItem) : [];
+      items = await hydrateFeaturedImages(
+        Array.isArray(recentData) ? recentData.map(mapPodcastItem) : []
+      );
     }
 
     return { items, fallbackUrl };
