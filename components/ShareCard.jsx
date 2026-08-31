@@ -158,6 +158,7 @@ function StoryStatusHeader({ index, total = 3 }) {
 function StoryFrame({ innerRef, index, kicker, children, footer, selected, onSelect }) {
   return (
     <button
+      ref={innerRef}
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
@@ -165,23 +166,21 @@ function StoryFrame({ innerRef, index, kicker, children, footer, selected, onSel
         selected ? "ring-4 ring-white" : "ring-1 ring-white/30 hover:ring-white/60"
       }`}
     >
-      <div ref={innerRef} className="relative flex h-full flex-col">
-        <div className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-white/25 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 -left-8 h-44 w-44 rounded-full bg-white/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-white/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 -left-8 h-44 w-44 rounded-full bg-white/10 blur-3xl" />
 
-        <div className="relative flex h-full flex-col px-4 pb-[8%] pt-[6%] sm:px-5">
-          <StoryStatusHeader index={index} />
+      <div className="relative flex h-full flex-col px-4 pb-[8%] pt-[6%] sm:px-5">
+        <StoryStatusHeader index={index} />
 
-          {kicker && (
-            <span className="mt-3 text-[9px] font-bold uppercase tracking-wide text-white/90">
-              {kicker}
-            </span>
-          )}
+        {kicker && (
+          <span className="mt-3 text-[9px] font-bold uppercase tracking-wide text-white/90">
+            {kicker}
+          </span>
+        )}
 
-          <div className="flex flex-1 flex-col justify-center gap-3 py-3">{children}</div>
+        <div className="flex flex-1 flex-col justify-center gap-3 py-3">{children}</div>
 
-          <div className="flex flex-col items-center gap-2 text-center">{footer}</div>
-        </div>
+        <div className="flex flex-col items-center gap-2 text-center">{footer}</div>
       </div>
     </button>
   );
@@ -383,12 +382,12 @@ export default function ShareCard({
                       return (
                         <li
                           key={program.id ?? index}
-                          className="flex items-center gap-2.5 rounded-xl bg-white/10 p-2 text-xs font-medium leading-snug text-white"
+                          className="flex items-start gap-2.5 rounded-xl bg-white/10 p-2 text-[11px] font-medium leading-snug text-white"
                         >
-                          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-purple to-primary-cyan shadow-sm">
-                            <Icon />
+                          <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary-navy/60 to-secondary-navy/40 shadow-sm ring-1 ring-white/40">
+                            <Icon className="h-4 w-4" />
                           </span>
-                          <span className="line-clamp-2">{program.title}</span>
+                          <span className="line-clamp-3">{program.title}</span>
                         </li>
                       );
                     })}
