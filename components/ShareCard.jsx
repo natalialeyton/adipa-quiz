@@ -101,7 +101,7 @@ function DonutGauge({ percent, label }) {
   const dash = (clamped / 100) * circumference;
 
   return (
-    <div className="relative flex h-24 w-24 flex-shrink-0 items-center justify-center">
+    <div className="relative flex h-36 w-36 flex-shrink-0 items-center justify-center">
       <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
@@ -121,10 +121,10 @@ function DonutGauge({ percent, label }) {
           strokeDasharray={`${dash} ${circumference - dash}`}
         />
       </svg>
-      <div className="absolute flex flex-col items-center px-2.5 text-center">
-        <span className="text-lg font-extrabold leading-none text-white">{clamped}%</span>
+      <div className="absolute flex flex-col items-center px-3 text-center">
+        <span className="text-3xl font-extrabold leading-none text-white">{clamped}%</span>
         {label && (
-          <span className="mt-1 line-clamp-2 max-w-[72px] break-words text-[7px] font-bold uppercase leading-tight tracking-wide text-white">
+          <span className="mt-1.5 line-clamp-2 max-w-[104px] break-words text-xs font-bold uppercase leading-tight tracking-wide text-white">
             {label}
           </span>
         )}
@@ -140,13 +140,13 @@ function DonutGauge({ percent, label }) {
 // réplica de la UI de Instagram.
 function StoryStatusHeader() {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2.5">
       <img
         src="/adipa-icon.png"
         alt="ADIPA"
-        className="h-6 w-6 rounded-full border border-white/40 object-cover"
+        className="h-8 w-8 rounded-full border border-white/40 object-cover"
       />
-      <span className="text-[11px] font-extrabold uppercase tracking-wide text-white">
+      <span className="text-sm font-extrabold uppercase tracking-wide text-white">
         ADIPA
       </span>
     </div>
@@ -166,32 +166,42 @@ function StoryFrame({ innerRef, kicker, children, footer }) {
       <div className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-white/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-16 -left-8 h-44 w-44 rounded-full bg-white/10 blur-3xl" />
 
-      <div className="relative flex h-full min-w-0 flex-col px-3.5 pb-[5%] pt-[4%] sm:px-4">
+      {/* flex-col + justify-between + h-full: el contenido ahora abarca
+          todo el alto de la ficha 9:16 (mucho más grande que antes) en vez
+          de amontonarse arriba con espacio vacío abajo. px-10 deja un
+          margen lateral suficiente para que las flechas de navegación
+          absolutas (8px de borde + 32px de diámetro = 40px) nunca tapen
+          el texto/íconos. */}
+      <div className="relative flex h-full min-w-0 flex-col justify-between px-10 py-6">
         <StoryStatusHeader />
 
         {kicker && (
-          <span className="mt-2 line-clamp-1 text-[9px] font-bold uppercase tracking-wide text-white/90">
+          <span className="mt-2.5 line-clamp-1 text-sm font-bold uppercase tracking-wide text-white/90">
             {kicker}
           </span>
         )}
 
-        {/* justify-start (no "center"): si el contenido llegara a ser más
-            alto que el espacio disponible, debe recortarse solo por abajo
-            — centrar + overflow-hidden recorta arriba Y abajo por igual,
-            lo que hace que el título de más arriba desaparezca y parezca
-            "flotar" encima del texto de abajo. */}
-        <div className="flex min-h-0 flex-1 flex-col justify-start gap-2 overflow-hidden py-1.5">
+        {/* justify-center: con tarjetas mucho más grandes (single-slide a
+            100% de ancho), centrar el bloque de contenido en el espacio
+            disponible evita el hueco vacío abajo que dejaba justify-start.
+            Con solo 3 ítems fijos por Historia (nunca texto libre largo),
+            el contenido cabe cómodo incluso con las tipografías más
+            grandes, así que el riesgo de recorte simétrico arriba/abajo
+            que tenía "justify-center + overflow-hidden" en la versión
+            anterior (con la cuadrícula 3-columnas apretada) ya no aplica
+            aquí. */}
+        <div className="flex min-h-0 flex-1 flex-col justify-center gap-4 overflow-hidden py-3">
           {children}
         </div>
 
-        <div className="flex flex-shrink-0 flex-col items-center gap-2 text-center">{footer}</div>
+        <div className="flex flex-shrink-0 flex-col items-center gap-2.5 text-center">{footer}</div>
       </div>
     </div>
   );
 }
 
 function DefaultFooter() {
-  return <span className="text-[10px] font-bold tracking-wide text-white">adipa.cl</span>;
+  return <span className="text-sm font-bold tracking-wide text-white">adipa.cl</span>;
 }
 
 export default function ShareCard({
@@ -382,25 +392,25 @@ export default function ShareCard({
                 innerRef={cardRefs[0]}
                 kicker="Mi Ruta de Especialización"
                 footer={
-                  <span className="rounded-full bg-white px-5 py-1.5 text-[11px] font-bold text-secondary-navy shadow-md">
+                  <span className="rounded-full bg-white px-6 py-2 text-sm font-bold text-secondary-navy shadow-md">
                     Ver perfil ⌃
                   </span>
                 }
               >
-                <h3 className="line-clamp-2 break-words text-sm font-extrabold leading-tight text-white sm:text-base">
+                <h3 className="line-clamp-2 break-words text-xl font-extrabold leading-tight text-white sm:text-2xl">
                   MIS 3 RECOMENDADOS
                 </h3>
                 {topPrograms.length > 0 ? (
-                  <ol className="flex min-w-0 flex-col gap-1.5">
+                  <ol className="flex min-w-0 flex-col gap-4">
                     {topPrograms.map((program, index) => {
                       const Icon = pickProgramIcon(program.title);
                       return (
                         <li
                           key={program.id ?? index}
-                          className="flex min-w-0 items-start gap-2 rounded-xl bg-white/10 p-1.5 text-[10px] font-medium leading-snug text-white sm:text-[11px]"
+                          className="flex min-w-0 items-start gap-3 rounded-xl bg-white/10 p-3.5 text-base font-medium leading-snug text-white sm:text-lg"
                         >
-                          <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary-navy/60 to-secondary-navy/40 shadow-sm ring-1 ring-white/40">
-                            <Icon className="h-3.5 w-3.5" />
+                          <span className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary-navy/60 to-secondary-navy/40 shadow-sm ring-1 ring-white/40">
+                            <Icon className="h-5 w-5" />
                           </span>
                           <span className="line-clamp-2 min-w-0 break-words">{program.title}</span>
                         </li>
@@ -408,7 +418,7 @@ export default function ShareCard({
                     })}
                   </ol>
                 ) : (
-                  <p className="text-xs text-white/85">
+                  <p className="text-base text-white/85">
                     Descubre los programas recomendados para ti en adipa.cl.
                   </p>
                 )}
@@ -422,28 +432,28 @@ export default function ShareCard({
                 kicker="Mi Sello Profesional"
                 footer={<DefaultFooter />}
               >
-                <div className="flex min-w-0 flex-col items-center gap-1.5 text-center">
-                  <h3 className="line-clamp-2 max-w-full break-words text-xs font-extrabold uppercase leading-tight text-white sm:text-sm">
+                <div className="flex min-w-0 flex-col items-center gap-3 text-center">
+                  <h3 className="line-clamp-2 max-w-full break-words text-lg font-extrabold uppercase leading-tight text-white sm:text-xl">
                     Perfil {school?.name ?? "Profesional"} ADIPA
                   </h3>
-                  <AreaIcon className="h-8 w-8 flex-shrink-0" />
-                  <div className="flex max-w-full flex-col gap-0.5">
-                    <span className="truncate text-xs font-semibold text-white">{handle}</span>
-                    <span className="line-clamp-2 text-[11px] font-medium text-white/90">
+                  <AreaIcon className="h-16 w-16 flex-shrink-0" />
+                  <div className="flex max-w-full flex-col gap-1">
+                    <span className="truncate text-base font-semibold text-white sm:text-lg">{handle}</span>
+                    <span className="line-clamp-2 text-sm font-medium text-white/90 sm:text-base">
                       Especialidad: {areaLabel}
                     </span>
                   </div>
                   {strengths.length > 0 && (
-                    <div className="mt-1 flex w-full min-w-0 flex-col gap-1.5">
+                    <div className="mt-2 flex w-full min-w-0 flex-col gap-3">
                       {strengths.slice(0, 3).map((strength) => (
                         <div
                           key={strength}
-                          className="flex min-w-0 items-center gap-2 rounded-xl border border-white/15 bg-white/10 p-1.5 text-left"
+                          className="flex min-w-0 items-center gap-3 rounded-xl border border-white/15 bg-white/10 p-3.5 text-left"
                         >
-                          <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary-cyan text-[10px] font-bold text-secondary-navy">
+                          <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary-cyan text-sm font-bold text-secondary-navy">
                             ✓
                           </span>
-                          <span className="line-clamp-2 min-w-0 break-words text-[10px] font-semibold leading-snug text-white sm:text-[11px]">
+                          <span className="line-clamp-2 min-w-0 break-words text-sm font-semibold leading-snug text-white sm:text-base">
                             {strength}
                           </span>
                         </div>
@@ -460,25 +470,25 @@ export default function ShareCard({
                 innerRef={cardRefs[2]}
                 kicker="Mi Radar de Afinidad"
                 footer={
-                  <span className="rounded-full bg-white/10 px-4 py-1.5 text-[11px] font-bold text-white backdrop-blur-md">
+                  <span className="rounded-full bg-white/10 px-5 py-2 text-sm font-bold text-white backdrop-blur-md">
                     Descubre el tuyo en adipa.cl ✨
                   </span>
                 }
               >
-                <div className="flex min-w-0 flex-col items-center gap-2 text-center">
-                  <h3 className="line-clamp-2 max-w-full break-words text-xs font-extrabold uppercase leading-tight text-white sm:text-sm">
+                <div className="flex min-w-0 flex-col items-center gap-4 text-center">
+                  <h3 className="line-clamp-2 max-w-full break-words text-lg font-extrabold uppercase leading-tight text-white sm:text-xl">
                     Resultados del Quiz de Orientación
                   </h3>
                   <DonutGauge percent={matchPercent ?? 0} label={areaLabel} />
                   {secondaryAreas.length > 0 && (
-                    <div className="flex w-full min-w-0 flex-col gap-2">
+                    <div className="flex w-full min-w-0 flex-col gap-4">
                       {secondaryAreas.map((area) => (
-                        <div key={area.id} className="flex min-w-0 flex-col gap-1 text-left">
-                          <div className="flex min-w-0 items-center justify-between gap-2 text-[11px] font-bold text-white">
+                        <div key={area.id} className="flex min-w-0 flex-col gap-1.5 text-left">
+                          <div className="flex min-w-0 items-center justify-between gap-2 text-sm font-bold text-white sm:text-base">
                             <span className="min-w-0 truncate">{area.name}</span>
                             <span className="flex-shrink-0">{area.percent}%</span>
                           </div>
-                          <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
+                          <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/20">
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-primary-cyan to-primary-purple"
                               style={{ width: `${area.percent}%` }}
@@ -494,17 +504,19 @@ export default function ShareCard({
               </div>
             </div>
 
-            {/* Flechas de navegación: absolutas dentro del marco oscuro,
-                avanzan/retroceden entre las 3 Historias sin dar la vuelta
-                (deshabilitadas visualmente en los extremos). */}
+            {/* Flechas de navegación: absolutas dentro del marco oscuro.
+                La tarjeta ahora tiene px-10 de margen interno lateral, así
+                que estas flechas (8px de borde + 32px de diámetro = 40px)
+                quedan exactamente dentro de ese margen y nunca se montan
+                sobre el texto/íconos de ninguna de las 3 Historias. */}
             <button
               type="button"
               onClick={() => setSelectedIndex((i) => Math.max(0, i - 1))}
               disabled={selectedIndex === 0}
               aria-label="Historia anterior"
-              className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-secondary-navy/60 text-white shadow-lg ring-1 ring-white/30 backdrop-blur-md transition hover:bg-secondary-navy/80 disabled:cursor-not-allowed disabled:opacity-0"
+              className="absolute left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-secondary-navy/70 text-white shadow-lg ring-1 ring-white/30 backdrop-blur-md transition hover:bg-secondary-navy/90 disabled:cursor-not-allowed disabled:opacity-0"
             >
-              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+              <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
                 <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
@@ -513,9 +525,9 @@ export default function ShareCard({
               onClick={() => setSelectedIndex((i) => Math.min(2, i + 1))}
               disabled={selectedIndex === 2}
               aria-label="Historia siguiente"
-              className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-secondary-navy/60 text-white shadow-lg ring-1 ring-white/30 backdrop-blur-md transition hover:bg-secondary-navy/80 disabled:cursor-not-allowed disabled:opacity-0"
+              className="absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-secondary-navy/70 text-white shadow-lg ring-1 ring-white/30 backdrop-blur-md transition hover:bg-secondary-navy/90 disabled:cursor-not-allowed disabled:opacity-0"
             >
-              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+              <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
                 <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
