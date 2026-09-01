@@ -44,3 +44,136 @@ body {
     padding: 0 !important;
   }
 }
+
+/* Cerebrito ADIPA -----------------------------------------------------
+   Mascota animada 100% original de LandingScreen.jsx (components/
+   CerebritoMascot.jsx): un personaje-cerebro ilustrado en SVG propio,
+   sin parecido a ninguna marca ni personaje registrado.
+
+   Todas las animaciones usan solo `transform` y `opacity` -propiedades
+   aceleradas por hardware (compositor de la GPU)- para mantener 60fps
+   sin recalcular layout/paint en cada frame ni afectar el rendimiento
+   del resto del flujo del Quiz. */
+@keyframes float-walk {
+  0% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  25% {
+    transform: translateY(-9px) rotate(3deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(-2deg);
+  }
+  75% {
+    transform: translateY(-11px) rotate(4deg);
+  }
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+}
+
+@keyframes cerebrito-shadow-pulse {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.32;
+  }
+  25% {
+    transform: scaleX(0.72);
+    opacity: 0.16;
+  }
+  50% {
+    transform: scaleX(0.9);
+    opacity: 0.24;
+  }
+  75% {
+    transform: scaleX(0.62);
+    opacity: 0.14;
+  }
+}
+
+@keyframes cerebrito-arm-wave-left {
+  0%,
+  100% {
+    transform: rotate(8deg);
+  }
+  50% {
+    transform: rotate(-20deg);
+  }
+}
+
+@keyframes cerebrito-arm-wave-right {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+}
+
+@keyframes cerebrito-leg-swing-left {
+  0%,
+  100% {
+    transform: rotate(12deg);
+  }
+  50% {
+    transform: rotate(-12deg);
+  }
+}
+
+@keyframes cerebrito-leg-swing-right {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+}
+
+.animate-float-walk {
+  animation: float-walk 3.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-cerebrito-shadow {
+  animation: cerebrito-shadow-pulse 3.2s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-cerebrito-arm-left {
+  animation: cerebrito-arm-wave-left 1.6s ease-in-out infinite;
+  transform-origin: 22px 46px;
+  will-change: transform;
+}
+
+.animate-cerebrito-arm-right {
+  animation: cerebrito-arm-wave-right 1.6s ease-in-out infinite;
+  transform-origin: 78px 46px;
+  will-change: transform;
+}
+
+.animate-cerebrito-leg-left {
+  animation: cerebrito-leg-swing-left 1.6s ease-in-out infinite;
+  transform-origin: 40px 74px;
+  will-change: transform;
+}
+
+.animate-cerebrito-leg-right {
+  animation: cerebrito-leg-swing-right 1.6s ease-in-out infinite;
+  transform-origin: 60px 74px;
+  will-change: transform;
+}
+
+/* Respeta la preferencia del sistema operativo de reducir movimiento. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-walk,
+  .animate-cerebrito-shadow,
+  .animate-cerebrito-arm-left,
+  .animate-cerebrito-arm-right,
+  .animate-cerebrito-leg-left,
+  .animate-cerebrito-leg-right {
+    animation: none;
+  }
+}

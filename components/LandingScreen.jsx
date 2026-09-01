@@ -17,6 +17,7 @@
 //   AppFlow.jsx arme la sesión del Quiz.
 
 import { useState } from "react";
+import CerebritoMascot from "./CerebritoMascot";
 
 const SITUATION_OPTIONS = [
   {
@@ -80,6 +81,12 @@ export default function LandingScreen({ onStart }) {
             especialidad que ya elegiste.
           </p>
         </div>
+
+        {/* Cerebrito ADIPA: mascota animada + dato curioso. En móvil queda
+            centrado justo sobre el título/antes del Paso 1, sin tapar
+            nunca las tarjetas de decisión; en escritorio se acomoda al
+            costado, junto al título. */}
+        <CerebritoMascot />
 
         {/* Paso 1: Selección de Situación Inicial */}
         <div className="flex w-full max-w-md flex-col gap-3">
