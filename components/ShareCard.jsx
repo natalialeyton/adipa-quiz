@@ -362,9 +362,17 @@ export default function ShareCard({
             </span>
           </div>
 
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 lg:grid lg:grid-cols-3 lg:gap-4 lg:overflow-visible">
+          {/* El contenedor real de la app nunca supera ~672px de ancho (lo
+              limita el <main> de la página, no este componente), así que
+              "3 columnas lado a lado" siempre terminaba siendo 3 tarjetas
+              de ~200px — imposible que quepa bien el contenido sin importar
+              cuánto se achiquen letras e íconos. El carrusel deslizable
+              (una tarjeta grande a la vez) es el único modo que le da a
+              cada Historia un ancho realmente cómodo, así que queda fijo
+              en todos los tamaños de pantalla, sin variante "lg". */}
+          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1">
             {/* Historia 1: Mis 3 Recomendados */}
-            <div className="w-[78%] min-w-0 max-w-[300px] flex-shrink-0 snap-center lg:w-auto lg:max-w-none">
+            <div className="w-[85%] min-w-0 max-w-[340px] flex-shrink-0 snap-center">
               <StoryFrame
                 innerRef={cardRefs[0]}
                 index={0}
@@ -406,7 +414,7 @@ export default function ShareCard({
             </div>
 
             {/* Historia 2: Perfil [Escuela] ADIPA */}
-            <div className="w-[78%] min-w-0 max-w-[300px] flex-shrink-0 snap-center lg:w-auto lg:max-w-none">
+            <div className="w-[85%] min-w-0 max-w-[340px] flex-shrink-0 snap-center">
               <StoryFrame
                 innerRef={cardRefs[1]}
                 index={1}
@@ -448,7 +456,7 @@ export default function ShareCard({
             </div>
 
             {/* Historia 3: Resultados del Quiz de Orientación */}
-            <div className="w-[78%] min-w-0 max-w-[300px] flex-shrink-0 snap-center lg:w-auto lg:max-w-none">
+            <div className="w-[85%] min-w-0 max-w-[340px] flex-shrink-0 snap-center">
               <StoryFrame
                 innerRef={cardRefs[2]}
                 index={2}
