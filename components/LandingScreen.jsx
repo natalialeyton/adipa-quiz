@@ -19,16 +19,125 @@
 import { useState } from "react";
 import IdeaBulbPopUp from "./IdeaBulbPopUp";
 
+// Ícono "Birrete de graduación": para la opción DESCUBRIR (Paso 1). Vector
+// propio en degradado neón cian→morado, mismo acabado que la ampolleta de
+// ideas (ver IdeaBulbPopUp.jsx) para mantener una sola identidad visual
+// "neón" en toda la pantalla de inicio.
+function GraduationCapIcon() {
+  return (
+    <svg viewBox="0 0 100 100" className="relative h-full w-full" role="img" aria-label="Birrete de graduación">
+      <defs>
+        <linearGradient id="situation-icon-gradient-cap" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#2CB7FF" />
+          <stop offset="100%" stopColor="#B48CFF" />
+        </linearGradient>
+      </defs>
+      {/* Base / cabeza del birrete */}
+      <path
+        d="M28,46 L28,62 C28,70.5 38,77 50,77 C62,77 72,70.5 72,62 L72,46 L50,57 Z"
+        fill="url(#situation-icon-gradient-cap)"
+        opacity="0.85"
+      />
+      {/* Plato superior (rombo) */}
+      <path
+        d="M50,17 L92,40 L50,63 L8,40 Z"
+        fill="url(#situation-icon-gradient-cap)"
+        stroke="#EAF6FF"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+      {/* Botón central + borla */}
+      <circle cx="50" cy="40" r="4" fill="#FFF6DE" />
+      <path d="M50,40 L78,51" stroke="#FFF6DE" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      <circle cx="79" cy="53" r="4.5" fill="#FFE9A8" stroke="#FFF6DE" strokeWidth="1.5" />
+      <path d="M79,57.5 L79,67" stroke="#FFE9A8" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// Ícono "Libro abierto": para la opción VALIDAR (Paso 1). Mismo acabado
+// neón que el birrete y la ampolleta.
+function OpenBookIcon() {
+  return (
+    <svg viewBox="0 0 100 100" className="relative h-full w-full" role="img" aria-label="Libro abierto">
+      <defs>
+        <linearGradient id="situation-icon-gradient-book" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#2CB7FF" />
+          <stop offset="100%" stopColor="#B48CFF" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M50,32 C40,25 24,23 14,27 C12,27.6 11,29 11,31 L11,72 C11,74.4 13.2,76 15.4,75.3 C25,72.3 40,74 50,80 Z"
+        fill="url(#situation-icon-gradient-book)"
+        stroke="#EAF6FF"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M50,32 C60,25 76,23 86,27 C88,27.6 89,29 89,31 L89,72 C89,74.4 86.8,76 84.6,75.3 C75,72.3 60,74 50,80 Z"
+        fill="url(#situation-icon-gradient-book)"
+        stroke="#EAF6FF"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path d="M50,32 L50,80" stroke="#EAF6FF" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
+      <path d="M20,38 L38,42 M20,46 L36,50 M20,54 L34,58" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" opacity="0.45" />
+      <path d="M80,38 L62,42 M80,46 L64,50 M80,54 L66,58" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" opacity="0.45" />
+    </svg>
+  );
+}
+
+// Envoltorio común de los 2 íconos de decisión: flotado suave
+// (animate-floating-slide) + halo neón pulsante (animate-icon-glow-pulse)
+// + destellos titilando (animate-sparkle-twinkle) -las 3 animaciones ya
+// definidas en app/globals.css y reutilizadas de la ampolleta de ideas,
+// para que ambos íconos compartan su misma identidad visual "neón"-.
+// `delay` desfasa el ciclo entre los 2 íconos para que no floten/titilen
+// en perfecto espejo el uno del otro.
+function SituationIcon({ Icon, delay = "0s" }) {
+  return (
+    <div className="relative flex h-12 w-12 items-center justify-center sm:h-14 sm:w-14">
+      <span
+        className="absolute -inset-3 rounded-full bg-[radial-gradient(circle,rgba(112,78,253,0.55)_0%,rgba(44,183,255,0.35)_45%,rgba(112,78,253,0)_75%)] animate-icon-glow-pulse"
+        style={{ animationDelay: delay }}
+      />
+      <span
+        className="absolute -left-1.5 -top-1 text-[10px] text-[#EAF6FF] animate-sparkle-twinkle"
+        style={{ animationDelay: delay }}
+      >
+        ✦
+      </span>
+      <span
+        className="absolute -right-1.5 top-1 text-[10px] text-[#EAF6FF] animate-sparkle-twinkle"
+        style={{ animationDelay: `calc(${delay} + 0.6s)` }}
+      >
+        ✦
+      </span>
+      <span
+        className="absolute -bottom-1 left-1 text-[10px] text-[#EAF6FF] animate-sparkle-twinkle"
+        style={{ animationDelay: `calc(${delay} + 1.1s)` }}
+      >
+        ✦
+      </span>
+      <div className="animate-floating-slide" style={{ animationDelay: delay }}>
+        <Icon />
+      </div>
+    </div>
+  );
+}
+
 const SITUATION_OPTIONS = [
   {
     goal: "DESCUBRIR",
-    emoji: "🧩",
+    Icon: GraduationCapIcon,
+    iconDelay: "0s",
     title: "Aún no sé mi área",
     description: "Orientado a descubrir tu especialidad ideal.",
   },
   {
     goal: "VALIDAR",
-    emoji: "🎯",
+    Icon: OpenBookIcon,
+    iconDelay: "-1.1s",
     title: "Ya sé mi área",
     description: "Orientado a validar tu enfoque y profundizar tu ruta de especialización.",
   },
@@ -102,7 +211,7 @@ export default function LandingScreen({ onStart }) {
                       : "border-white/20 bg-white/5 hover:border-primary-cyan/60 hover:bg-white/10"
                   }`}
                 >
-                  <span className="text-2xl">{option.emoji}</span>
+                  <SituationIcon Icon={option.Icon} delay={option.iconDelay} />
                   <span className="text-sm font-bold text-white sm:text-base">{option.title}</span>
                   <span className="text-xs text-white/75 sm:text-sm">{option.description}</span>
                 </button>

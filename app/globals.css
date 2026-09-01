@@ -101,7 +101,8 @@ body {
 
 /* Destellos "✦" alrededor del vidrio de la ampolleta, con retardos
    escalonados entre sí (ver IdeaBulbPopUp.jsx) para que no titilen
-   todos en sincro. */
+   todos en sincro. También reutilizado por los íconos de decisión del
+   Paso 1 de LandingScreen.jsx (birrete / libro abierto). */
 @keyframes sparkle-twinkle {
   0%,
   100% {
@@ -111,6 +112,26 @@ body {
   50% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* Halo neón cian→morado detrás de los íconos de decisión del Paso 1
+   (birrete "Aún no sé mi área" / libro abierto "Ya sé mi área") en
+   LandingScreen.jsx. Mismo pulso suave (curva y duración) que el
+   resplandor de la ampolleta -idea-glow-flicker-, pero con su propio
+   nombre porque el color de fondo que anima es distinto (cian/morado en
+   vez del dorado cálido de la ampolleta), así ambos íconos y la
+   ampolleta comparten una sola identidad visual "neón" en toda la
+   pantalla de inicio. */
+@keyframes icon-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.1);
   }
 }
 
@@ -129,6 +150,11 @@ body {
   will-change: transform, opacity;
 }
 
+.animate-icon-glow-pulse {
+  animation: icon-glow-pulse 2.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
 .animate-sparkle-twinkle {
   animation: sparkle-twinkle 1.8s ease-in-out infinite;
   will-change: transform, opacity;
@@ -139,6 +165,7 @@ body {
   .animate-floating-slide,
   .animate-idea-glow-flicker,
   .animate-idea-glow-pop,
+  .animate-icon-glow-pulse,
   .animate-sparkle-twinkle {
     animation: none;
   }
