@@ -355,7 +355,7 @@ export default function ShareCard({
   return (
     <section className="no-print flex flex-col items-center gap-4">
       <h2 className="text-lg font-semibold text-secondary-navy sm:text-xl">
-        Comparte tu Resultado
+        Comparte tus resultados en Instagram
       </h2>
 
       {/* Adipa Social Kit: marco corporativo con vista unificada de las 3 Historias */}

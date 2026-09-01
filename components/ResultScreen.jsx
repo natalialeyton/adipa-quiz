@@ -27,6 +27,7 @@ import {
   getProgramsBySubspecialty,
   getSeminarsBySubspecialty,
   getResourcesBySubspecialty,
+  getPodcastEpisodesBySubspecialty,
   getTopAreas,
   ADIPADOS_SPOTIFY_URL,
   ADIPA_TIKTOK_URL,
@@ -423,6 +424,10 @@ export default function ResultScreen({ userData, quizResult, goal = "DESCUBRIR",
   const [seminarsFallbackUrl, setSeminarsFallbackUrl] = useState(null);
   const [resources, setResources] = useState([]);
   const [resourcesFallbackUrl, setResourcesFallbackUrl] = useState(null);
+  // Solo se usa/muestra en el nivel Profundo (ver Bloque 4: "Top 3
+  // Capítulos Recomendados por tu Perfil"); en Express/Estándar no se
+  // renderiza sección de Adipados.
+  const [podcastEpisodes, setPodcastEpisodes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const school = SCHOOLS[quizResult?.schoolId];
@@ -445,6 +450,13 @@ export default function ResultScreen({ userData, quizResult, goal = "DESCUBRIR",
   const top3Programs = programs.slice(0, 3);
   const top3Seminars = seminars.slice(0, 3);
   const top3Resources = resources.slice(0, 3);
+  // Los episodios enlazan a Spotify (mismo comportamiento que
+  // PodcastWidget.jsx), no al post de adipa.cl que trae `item.url` por
+  // defecto -por eso se remapea acá antes de pasarlos a OfferCarousel/
+  // OfferCard, que siempre usan `item.url` como link-.
+  const top3Episodes = podcastEpisodes
+    .slice(0, 3)
+    .map((episode) => ({ ...episode, url: episode.spotifyUrl ?? ADIPADOS_SPOTIFY_URL }));
 
   const handleUpgradeClick = () => {
     onRestart?.();
@@ -460,10 +472,11 @@ export default function ResultScreen({ userData, quizResult, goal = "DESCUBRIR",
 
     async function loadRecommendations() {
       setLoading(true);
-      const [programsResult, seminarsResult, resourcesResult] = await Promise.all([
+      const [programsResult, seminarsResult, resourcesResult, podcastResult] = await Promise.all([
         getProgramsBySubspecialty(quizResult.subspecialtyId),
         getSeminarsBySubspecialty(quizResult.subspecialtyId),
         getResourcesBySubspecialty(quizResult.subspecialtyId),
+        getPodcastEpisodesBySubspecialty(quizResult.subspecialtyId),
       ]);
 
       if (cancelled) return;
@@ -474,6 +487,7 @@ export default function ResultScreen({ userData, quizResult, goal = "DESCUBRIR",
       setSeminarsFallbackUrl(seminarsResult.fallbackUrl);
       setResources(resourcesResult.items);
       setResourcesFallbackUrl(resourcesResult.fallbackUrl);
+      setPodcastEpisodes(podcastResult.items);
       setLoading(false);
     }
 
@@ -705,6 +719,23 @@ export default function ResultScreen({ userData, quizResult, goal = "DESCUBRIR",
                 loading={loading}
                 emptyHref={resourcesFallbackUrl ?? "https://adipa.cl/recursos/ebooks/"}
                 emptyLabel="Ver todos los recursos gratuitos en adipa.cl"
+                compact
+              />
+            )}
+
+            {/* Adipados (podcast): solo en Profundo, como carrusel "Top 3"
+                -mismo lenguaje visual que Programas/Seminarios/Recursos-,
+                en vez del widget aparte de antes. No se muestra en
+                Express ni Estándar. */}
+            {tier === "PROFUNDO" && (
+              <OfferCarousel
+                title="Top 3 Capítulos Recomendados por tu Perfil"
+                items={top3Episodes}
+                tagLabel="Capítulo Adipados"
+                ctaLabel="Escuchar en Spotify"
+                loading={loading}
+                emptyHref={ADIPADOS_SPOTIFY_URL}
+                emptyLabel="Escuchar Adipados en Spotify"
                 compact
               />
             )}
