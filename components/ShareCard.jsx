@@ -4,11 +4,17 @@
 //
 // "Adipa Social Kit": vista previa unificada de las 3 Historias de
 // Instagram (9:16, 1080x1920 al exportar) dentro de un marco azul
-// corporativo con glow, estilo "Wrapped". Cada Historia simula la
-// cabecera real de un Story de Instagram (barra de progreso + avatar +
-// @adipaoficial) y se puede seleccionar (anillo de selección) para
-// compartirla individualmente; "Descargar Todas" exporta las 3 en alta
-// resolución vía html-to-image.
+// corporativo con glow, estilo "Wrapped". Cada Historia lleva solo una
+// etiqueta simple de marca (ícono + "ADIPA", sin barra de progreso ni
+// @handle simulando la UI real de Instagram) y se puede seleccionar
+// (anillo de selección) para compartirla individualmente; "Descargar
+// Todas" exporta las 3 en alta resolución vía html-to-image.
+//
+// Responsive: en pantallas chicas/medianas las 3 Historias son un
+// carrusel horizontal deslizable (snap-x); solo a partir de "lg"
+// (≥1024px, con espacio real) se muestran las 3 en una cuadrícula fija.
+// Todo texto variable (títulos de programas, nombre de escuela, áreas)
+// usa line-clamp + min-w-0 para nunca desbordar ni cortarse a la mitad.
 //
 // Historia "Mis 3 Recomendados": los 3 programas ADIPA con mayor
 //   coincidencia según el resultado, cada uno con un ícono blanco sobre
@@ -95,7 +101,7 @@ function DonutGauge({ percent, label }) {
   const dash = (clamped / 100) * circumference;
 
   return (
-    <div className="relative flex h-32 w-32 flex-shrink-0 items-center justify-center">
+    <div className="relative flex h-24 w-24 flex-shrink-0 items-center justify-center">
       <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
@@ -115,10 +121,10 @@ function DonutGauge({ percent, label }) {
           strokeDasharray={`${dash} ${circumference - dash}`}
         />
       </svg>
-      <div className="absolute flex flex-col items-center px-3 text-center">
-        <span className="text-2xl font-extrabold leading-none text-white">{clamped}%</span>
+      <div className="absolute flex flex-col items-center px-2.5 text-center">
+        <span className="text-lg font-extrabold leading-none text-white">{clamped}%</span>
         {label && (
-          <span className="mt-1 max-w-[88px] text-[8px] font-bold uppercase leading-tight tracking-wide text-white">
+          <span className="mt-1 line-clamp-2 max-w-[72px] break-words text-[7px] font-bold uppercase leading-tight tracking-wide text-white">
             {label}
           </span>
         )}
@@ -161,16 +167,21 @@ function StoryFrame({ innerRef, index, kicker, children, footer, selected, onSel
       <div className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-white/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-16 -left-8 h-44 w-44 rounded-full bg-white/10 blur-3xl" />
 
-      <div className="relative flex h-full flex-col px-4 pb-[6%] pt-[5%] sm:px-5">
+      <div className="relative flex h-full min-w-0 flex-col px-3.5 pb-[5%] pt-[4%] sm:px-4">
         <StoryStatusHeader />
 
         {kicker && (
-          <span className="mt-2.5 text-[9px] font-bold uppercase tracking-wide text-white/90">
+          <span className="mt-2 line-clamp-1 text-[9px] font-bold uppercase tracking-wide text-white/90">
             {kicker}
           </span>
         )}
 
-        <div className="flex min-h-0 flex-1 flex-col justify-center gap-3 overflow-hidden py-2">
+        {/* justify-start (no "center"): si el contenido llegara a ser más
+            alto que el espacio disponible, debe recortarse solo por abajo
+            — centrar + overflow-hidden recorta arriba Y abajo por igual,
+            lo que hace que el título de más arriba desaparezca y parezca
+            "flotar" encima del texto de abajo. */}
+        <div className="flex min-h-0 flex-1 flex-col justify-start gap-2 overflow-hidden py-1.5">
           {children}
         </div>
 
@@ -334,7 +345,7 @@ export default function ShareCard({
       </h2>
 
       {/* Adipa Social Kit: marco corporativo con vista unificada de las 3 Historias */}
-      <div className="relative w-full max-w-3xl overflow-hidden rounded-3xl bg-gradient-to-b from-secondary-navy to-[#1C2541] p-4 shadow-2xl sm:p-6">
+      <div className="relative w-full max-w-5xl overflow-hidden rounded-3xl bg-gradient-to-b from-secondary-navy to-[#1C2541] p-3 shadow-2xl sm:p-4">
         <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary-purple/30 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-primary-cyan/20 blur-3xl" />
 
@@ -351,9 +362,9 @@ export default function ShareCard({
             </span>
           </div>
 
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-3 sm:overflow-visible">
+          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 lg:grid lg:grid-cols-3 lg:gap-4 lg:overflow-visible">
             {/* Historia 1: Mis 3 Recomendados */}
-            <div className="w-[78%] flex-shrink-0 snap-center sm:w-auto">
+            <div className="w-[78%] min-w-0 max-w-[300px] flex-shrink-0 snap-center lg:w-auto lg:max-w-none">
               <StoryFrame
                 innerRef={cardRefs[0]}
                 index={0}
@@ -366,22 +377,22 @@ export default function ShareCard({
                   </span>
                 }
               >
-                <h3 className="text-lg font-extrabold leading-tight text-white sm:text-xl">
+                <h3 className="line-clamp-2 break-words text-sm font-extrabold leading-tight text-white sm:text-base">
                   MIS 3 RECOMENDADOS
                 </h3>
                 {topPrograms.length > 0 ? (
-                  <ol className="flex flex-col gap-2">
+                  <ol className="flex min-w-0 flex-col gap-1.5">
                     {topPrograms.map((program, index) => {
                       const Icon = pickProgramIcon(program.title);
                       return (
                         <li
                           key={program.id ?? index}
-                          className="flex items-start gap-2.5 rounded-xl bg-white/10 p-2 text-[11px] font-medium leading-snug text-white"
+                          className="flex min-w-0 items-start gap-2 rounded-xl bg-white/10 p-1.5 text-[10px] font-medium leading-snug text-white sm:text-[11px]"
                         >
-                          <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary-navy/60 to-secondary-navy/40 shadow-sm ring-1 ring-white/40">
-                            <Icon className="h-4 w-4" />
+                          <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary-navy/60 to-secondary-navy/40 shadow-sm ring-1 ring-white/40">
+                            <Icon className="h-3.5 w-3.5" />
                           </span>
-                          <span className="line-clamp-3">{program.title}</span>
+                          <span className="line-clamp-2 min-w-0 break-words">{program.title}</span>
                         </li>
                       );
                     })}
@@ -395,7 +406,7 @@ export default function ShareCard({
             </div>
 
             {/* Historia 2: Perfil [Escuela] ADIPA */}
-            <div className="w-[78%] flex-shrink-0 snap-center sm:w-auto">
+            <div className="w-[78%] min-w-0 max-w-[300px] flex-shrink-0 snap-center lg:w-auto lg:max-w-none">
               <StoryFrame
                 innerRef={cardRefs[1]}
                 index={1}
@@ -404,26 +415,28 @@ export default function ShareCard({
                 onSelect={() => setSelectedIndex(1)}
                 footer={<DefaultFooter />}
               >
-                <div className="flex flex-col items-center gap-2.5 text-center">
-                  <h3 className="text-base font-extrabold uppercase leading-tight text-white sm:text-lg">
+                <div className="flex min-w-0 flex-col items-center gap-1.5 text-center">
+                  <h3 className="line-clamp-2 max-w-full break-words text-xs font-extrabold uppercase leading-tight text-white sm:text-sm">
                     Perfil {school?.name ?? "Profesional"} ADIPA
                   </h3>
-                  <AreaIcon className="h-12 w-12" />
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-semibold text-white">{handle}</span>
-                    <span className="text-[11px] font-medium text-white/90">Especialidad: {areaLabel}</span>
+                  <AreaIcon className="h-8 w-8 flex-shrink-0" />
+                  <div className="flex max-w-full flex-col gap-0.5">
+                    <span className="truncate text-xs font-semibold text-white">{handle}</span>
+                    <span className="line-clamp-2 text-[11px] font-medium text-white/90">
+                      Especialidad: {areaLabel}
+                    </span>
                   </div>
                   {strengths.length > 0 && (
-                    <div className="mt-1 flex w-full flex-col gap-1.5">
+                    <div className="mt-1 flex w-full min-w-0 flex-col gap-1.5">
                       {strengths.slice(0, 3).map((strength) => (
                         <div
                           key={strength}
-                          className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 p-2 text-left"
+                          className="flex min-w-0 items-center gap-2 rounded-xl border border-white/15 bg-white/10 p-1.5 text-left"
                         >
-                          <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary-cyan text-[11px] font-bold text-secondary-navy">
+                          <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary-cyan text-[10px] font-bold text-secondary-navy">
                             ✓
                           </span>
-                          <span className="text-[11px] font-semibold leading-snug text-white">
+                          <span className="line-clamp-2 min-w-0 break-words text-[10px] font-semibold leading-snug text-white sm:text-[11px]">
                             {strength}
                           </span>
                         </div>
@@ -435,7 +448,7 @@ export default function ShareCard({
             </div>
 
             {/* Historia 3: Resultados del Quiz de Orientación */}
-            <div className="w-[78%] flex-shrink-0 snap-center sm:w-auto">
+            <div className="w-[78%] min-w-0 max-w-[300px] flex-shrink-0 snap-center lg:w-auto lg:max-w-none">
               <StoryFrame
                 innerRef={cardRefs[2]}
                 index={2}
@@ -448,18 +461,18 @@ export default function ShareCard({
                   </span>
                 }
               >
-                <div className="flex flex-col items-center gap-3 text-center">
-                  <h3 className="text-sm font-extrabold uppercase leading-tight text-white sm:text-base">
+                <div className="flex min-w-0 flex-col items-center gap-2 text-center">
+                  <h3 className="line-clamp-2 max-w-full break-words text-xs font-extrabold uppercase leading-tight text-white sm:text-sm">
                     Resultados del Quiz de Orientación
                   </h3>
                   <DonutGauge percent={matchPercent ?? 0} label={areaLabel} />
                   {secondaryAreas.length > 0 && (
-                    <div className="flex w-full flex-col gap-2">
+                    <div className="flex w-full min-w-0 flex-col gap-2">
                       {secondaryAreas.map((area) => (
-                        <div key={area.id} className="flex flex-col gap-1 text-left">
-                          <div className="flex items-center justify-between text-[11px] font-bold text-white">
-                            <span>{area.name}</span>
-                            <span>{area.percent}%</span>
+                        <div key={area.id} className="flex min-w-0 flex-col gap-1 text-left">
+                          <div className="flex min-w-0 items-center justify-between gap-2 text-[11px] font-bold text-white">
+                            <span className="min-w-0 truncate">{area.name}</span>
+                            <span className="flex-shrink-0">{area.percent}%</span>
                           </div>
                           <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
                             <div
