@@ -34,7 +34,6 @@ import {
 } from "@/services/adipaApi";
 import { buildAdaptiveInsights } from "@/services/specialtyInsights";
 import ShareCard from "./ShareCard";
-import TikTokModule from "./TikTokModule";
 
 // Íconos vectoriales simples (trazo, sin logos de marca reproducidos) para
 // la fila de Redes Sociales Oficiales del footer institucional.
@@ -776,10 +775,9 @@ export default function ResultScreen({ userData, quizResult, goal = "DESCUBRIR",
         goal={goal}
       />
 
-      {/* Somos ADIPA (TikTok) */}
-      <TikTokModule />
-
-      {/* Footer institucional: Newsletter + Redes Sociales + acciones */}
+      {/* Footer institucional: Newsletter + Redes Sociales + acciones. El
+          recuadro aparte "Somos ADIPA" (TikTok) ya no va: TikTok ahora
+          vive dentro de la fila de íconos de Redes Sociales del footer. */}
       <NewsletterCard />
 
       <div className="no-print flex flex-col items-center gap-3">
