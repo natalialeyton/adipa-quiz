@@ -127,30 +127,22 @@ function DonutGauge({ percent, label }) {
   );
 }
 
-// Cabecera estilo Historia real de Instagram: barra de progreso segmentada
-// (una por Historia del kit) + avatar + @adipaoficial + wordmark ADIPA.
-function StoryStatusHeader({ index, total = 3 }) {
+// Etiqueta de marca simple dentro de cada Historia: solo ícono + "ADIPA".
+// Se removieron la barra de progreso segmentada y el "@adipaoficial" que
+// simulaban la interfaz real de Instagram Stories — la imagen debe verse
+// y descargarse como una imagen normal para compartir, no como una
+// réplica de la UI de Instagram.
+function StoryStatusHeader() {
   return (
-    <div className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-1">
-        {Array.from({ length: total }).map((_, i) => (
-          <span
-            key={i}
-            className={`h-[3px] flex-1 rounded-full ${i === index ? "bg-white" : "bg-white/30"}`}
-          />
-        ))}
-      </div>
-      <div className="flex items-center gap-2">
-        <img
-          src="/adipa-icon.png"
-          alt="ADIPA"
-          className="h-7 w-7 rounded-full border border-white/40 object-cover"
-        />
-        <div className="flex flex-col leading-none">
-          <span className="text-[11px] font-bold text-white">@adipaoficial</span>
-          <span className="text-[9px] font-semibold uppercase tracking-wide text-white/85">ADIPA</span>
-        </div>
-      </div>
+    <div className="flex items-center gap-2">
+      <img
+        src="/adipa-icon.png"
+        alt="ADIPA"
+        className="h-6 w-6 rounded-full border border-white/40 object-cover"
+      />
+      <span className="text-[11px] font-extrabold uppercase tracking-wide text-white">
+        ADIPA
+      </span>
     </div>
   );
 }
@@ -169,18 +161,20 @@ function StoryFrame({ innerRef, index, kicker, children, footer, selected, onSel
       <div className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-white/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-16 -left-8 h-44 w-44 rounded-full bg-white/10 blur-3xl" />
 
-      <div className="relative flex h-full flex-col px-4 pb-[8%] pt-[6%] sm:px-5">
-        <StoryStatusHeader index={index} />
+      <div className="relative flex h-full flex-col px-4 pb-[6%] pt-[5%] sm:px-5">
+        <StoryStatusHeader />
 
         {kicker && (
-          <span className="mt-3 text-[9px] font-bold uppercase tracking-wide text-white/90">
+          <span className="mt-2.5 text-[9px] font-bold uppercase tracking-wide text-white/90">
             {kicker}
           </span>
         )}
 
-        <div className="flex flex-1 flex-col justify-center gap-3 py-3">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col justify-center gap-3 overflow-hidden py-2">
+          {children}
+        </div>
 
-        <div className="flex flex-col items-center gap-2 text-center">{footer}</div>
+        <div className="flex flex-shrink-0 flex-col items-center gap-2 text-center">{footer}</div>
       </div>
     </button>
   );
