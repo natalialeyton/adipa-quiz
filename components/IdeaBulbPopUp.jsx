@@ -20,10 +20,12 @@
 // el punto medio (50%); en los extremos simplemente invierte de
 // dirección y sigue.
 //
-// Colores: el cuadro del dato usa la paleta celeste aprobada de ADIPA
-// (primary-cyan / secondary-light) sobre fondo claro, para que nunca se
-// "pierda" contra el navy de la tarjeta -a diferencia de la versión
-// anterior, que usaba navy sobre navy-.
+// Colores: el cuadro del dato usa exactamente el mismo degradado
+// morado→celeste de las tarjetas de Instagram del Adipa Social Kit (ver
+// StoryFrame en ShareCard.jsx: bg-gradient-to-b from-primary-purple
+// to-primary-cyan), con un borde neón brillante + destellos -mismo
+// estilo que la ampolleta- y texto blanco de alto contraste, para que la
+// estética del pop-up quede unificada con el resto del kit.
 //
 // Animación: el desplazamiento horizontal de la ampolleta (con parada
 // exacta a mitad de camino y reacción inmediata al click) lo maneja este
@@ -38,11 +40,11 @@
 import { useEffect, useRef, useState } from "react";
 
 const FUN_FACTS = [
-  "...caminar 20 minutos en un entorno natural reduce el cortisol (hormona del estrés) en un 21%?",
-  "...el cerebro humano procesa imágenes y estímulos visuales hasta 60.000 veces más rápido que el texto?",
-  "...practicar la gratitud de forma constante reorganiza las conexiones de la corteza prefrontal aumentando la resiliencia?",
-  "...existen más de 50 ramas y enfoques de especialización dentro de la psicología moderna y la neurociencia?",
-  "...escuchar música durante el estudio activa ambos hemisferios cerebrales facilitando la consolidación de la memoria?",
+  "Caminar 20 minutos en un entorno natural reduce el cortisol (hormona del estrés) en un 21%.",
+  "El cerebro humano procesa imágenes y estímulos visuales hasta 60.000 veces más rápido que el texto.",
+  "Practicar la gratitud de forma constante reorganiza las conexiones de la corteza prefrontal aumentando la resiliencia.",
+  "Existen más de 50 ramas y enfoques de especialización dentro de la psicología moderna y la neurociencia.",
+  "Escuchar música durante el estudio activa ambos hemisferios cerebrales facilitando la consolidación de la memoria.",
 ];
 
 // Puntos de referencia del recorrido de la ampolleta (% desde la
@@ -260,11 +262,13 @@ export default function IdeaBulbPopUp() {
     <>
       {/* Cuadro del dato curioso: independiente de la ampolleta, se
           reposiciona por distintos puntos de TODA la tarjeta (no solo
-          junto al pie), en celeste ADIPA para siempre destacar sobre el
-          fondo navy. */}
+          junto al pie). Mismo degradado morado→celeste que las tarjetas
+          de Instagram del Social Kit (from-primary-purple to-primary-cyan
+          en ShareCard.jsx), con borde neón + destellos y texto blanco de
+          alto contraste. */}
       {popupOpen && (
         <div
-          className={`pointer-events-none absolute z-20 w-[226px] max-w-[66vw] rounded-[18px] border-[1.5px] border-primary-cyan bg-gradient-to-br from-[#E9F6FF] to-secondary-light px-4 py-3 text-left shadow-[0_8px_28px_rgba(0,0,0,0.35),0_0_0_4px_rgba(44,183,255,0.12)] transition-[opacity,transform] duration-200 ease-out ${
+          className={`pointer-events-none absolute z-20 w-[230px] max-w-[68vw] rounded-[20px] border-2 border-white/40 bg-gradient-to-b from-primary-purple to-primary-cyan px-4 py-3.5 text-left shadow-[0_10px_30px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.1),0_0_26px_rgba(44,183,255,0.55)] transition-[opacity,transform] duration-200 ease-out ${
             popupVisible ? "pointer-events-auto opacity-100" : "opacity-0"
           }`}
           style={{
@@ -272,17 +276,37 @@ export default function IdeaBulbPopUp() {
             transform: popupVisible ? activePosition.visible : activePosition.hidden,
           }}
         >
+          {/* Destellos, mismo estilo/animación que los de la ampolleta. */}
+          <span
+            className="pointer-events-none absolute -left-1.5 -top-1.5 text-[11px] text-[#FFF3C4] animate-sparkle-twinkle"
+            style={{ animationDelay: "0.2s" }}
+          >
+            ✦
+          </span>
+          <span
+            className="pointer-events-none absolute -right-1.5 top-3 text-[11px] text-[#FFF3C4] animate-sparkle-twinkle"
+            style={{ animationDelay: "0.9s" }}
+          >
+            ✦
+          </span>
+          <span
+            className="pointer-events-none absolute -bottom-1.5 left-4 text-[11px] text-[#FFF3C4] animate-sparkle-twinkle"
+            style={{ animationDelay: "1.4s" }}
+          >
+            ✦
+          </span>
+
           <div className="mb-1.5 flex items-center justify-between gap-2">
-            <span className="text-xs font-extrabold text-primary-purple">💡 ¿Sabías que...?</span>
+            <span className="text-xs font-extrabold text-white drop-shadow-sm">💡 ¿Sabías qué?</span>
             <button
               type="button"
               onClick={handleRefreshClick}
-              className="flex-shrink-0 rounded-full border border-secondary-navy/15 bg-secondary-navy/5 px-2.5 py-1 text-[10px] font-bold text-secondary-navy transition hover:border-primary-cyan hover:bg-primary-cyan/10"
+              className="flex-shrink-0 rounded-full border border-white/40 bg-white/15 px-2.5 py-1 text-[10px] font-bold text-white transition hover:border-white/70 hover:bg-white/25"
             >
               🔄 Otro dato
             </button>
           </div>
-          <p className="text-xs font-medium leading-snug text-secondary-navy sm:text-[13px]">{FUN_FACTS[factIndex]}</p>
+          <p className="text-xs font-medium leading-snug text-white sm:text-[13px]">{FUN_FACTS[factIndex]}</p>
         </div>
       )}
 
