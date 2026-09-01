@@ -43,7 +43,7 @@ const FUN_FACTS = [
   "Caminar 20 minutos en un entorno natural reduce el cortisol (hormona del estrés) en un 21%.",
   "El cerebro humano procesa imágenes y estímulos visuales hasta 60.000 veces más rápido que el texto.",
   "Practicar la gratitud de forma constante reorganiza las conexiones de la corteza prefrontal aumentando la resiliencia.",
-  "Existen más de 50 ramas y enfoques de especialización dentro de la psicología moderna y la neurociencia.",
+  "Existen más de 50 áreas y enfoques de especialización dentro de la psicología moderna y la neurociencia.",
   "Escuchar música durante el estudio activa ambos hemisferios cerebrales facilitando la consolidación de la memoria.",
 ];
 

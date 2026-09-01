@@ -186,7 +186,7 @@ export default function LandingScreen({ onStart }) {
             Encuentra la especialidad de psicología que mejor se ajusta a tu perfil profesional
           </h1>
           <p className="max-w-lg text-sm text-secondary-light/90 sm:text-base">
-            Con el test interactivo de ADIPA, descubre tu rama afín o valida y profundiza la
+            Con el test interactivo de ADIPA, descubre tu área afín o valida y profundiza la
             especialidad que ya elegiste.
           </p>
         </div>

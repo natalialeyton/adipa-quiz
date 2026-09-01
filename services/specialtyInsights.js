@@ -5,7 +5,7 @@
 // compartir (ShareCard). Cada entrada usa la clave exacta de
 // SUBSPECIALTIES en services/adipaApi.js.
 //
-// - analysis: por qué las respuestas de la persona conectan con esta rama.
+// - analysis: por qué las respuestas de la persona conectan con esta área.
 // - strengths: 3 fortalezas clave de su estilo de trabajo/pensamiento.
 // - recommendation: consejo concreto de hacia dónde orientar su desarrollo.
 // - superpower: frase corta de identidad para la tarjeta para compartir.
