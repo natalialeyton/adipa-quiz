@@ -153,16 +153,15 @@ function StoryStatusHeader() {
   );
 }
 
-function StoryFrame({ innerRef, index, kicker, children, footer, selected, onSelect }) {
+function StoryFrame({ innerRef, kicker, children, footer }) {
+  // Ya no es un <button> seleccionable: con el carrusel estricto de 1
+  // tarjeta a la vez, la Historia visible en pantalla ES la Historia
+  // "seleccionada" (la que exportan Descargar/Compartir), así que no
+  // hace falta un estado de selección aparte ni un anillo destacado.
   return (
-    <button
+    <div
       ref={innerRef}
-      type="button"
-      onClick={onSelect}
-      aria-pressed={selected}
-      className={`relative flex aspect-[9/16] w-full flex-shrink-0 flex-col overflow-hidden rounded-3xl bg-gradient-to-b from-primary-purple to-primary-cyan text-left text-white shadow-2xl ring-offset-2 ring-offset-secondary-navy transition ${
-        selected ? "ring-4 ring-white" : "ring-1 ring-white/30 hover:ring-white/60"
-      }`}
+      className="relative flex aspect-[9/16] w-full flex-shrink-0 flex-col overflow-hidden rounded-3xl bg-gradient-to-b from-primary-purple to-primary-cyan text-left text-white shadow-2xl"
     >
       <div className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-white/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-16 -left-8 h-44 w-44 rounded-full bg-white/10 blur-3xl" />
@@ -187,7 +186,7 @@ function StoryFrame({ innerRef, index, kicker, children, footer, selected, onSel
 
         <div className="flex flex-shrink-0 flex-col items-center gap-2 text-center">{footer}</div>
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -366,19 +365,22 @@ export default function ShareCard({
               limita el <main> de la página, no este componente), así que
               "3 columnas lado a lado" siempre terminaba siendo 3 tarjetas
               de ~200px — imposible que quepa bien el contenido sin importar
-              cuánto se achiquen letras e íconos. El carrusel deslizable
-              (una tarjeta grande a la vez) es el único modo que le da a
-              cada Historia un ancho realmente cómodo, así que queda fijo
-              en todos los tamaños de pantalla, sin variante "lg". */}
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1">
+              cuánto se achiquen letras e íconos. Carrusel estricto de 1
+              sola tarjeta visible a la vez: el "viewport" recorta con
+              overflow-hidden y el "track" interno se desliza con
+              translateX(-index * 100%), exactamente una tarjeta por vez,
+              sin que asome ni un borde de la tarjeta vecina. */}
+          <div className="relative">
+            <div className="overflow-hidden rounded-2xl">
+              <div
+                className="flex transition-transform duration-300 ease-out"
+                style={{ transform: `translateX(-${selectedIndex * 100}%)` }}
+              >
             {/* Historia 1: Mis 3 Recomendados */}
-            <div className="w-[85%] min-w-0 max-w-[340px] flex-shrink-0 snap-center">
+            <div className="w-full min-w-0 flex-shrink-0">
               <StoryFrame
                 innerRef={cardRefs[0]}
-                index={0}
                 kicker="Mi Ruta de Especialización"
-                selected={selectedIndex === 0}
-                onSelect={() => setSelectedIndex(0)}
                 footer={
                   <span className="rounded-full bg-white px-5 py-1.5 text-[11px] font-bold text-secondary-navy shadow-md">
                     Ver perfil ⌃
@@ -414,13 +416,10 @@ export default function ShareCard({
             </div>
 
             {/* Historia 2: Perfil [Escuela] ADIPA */}
-            <div className="w-[85%] min-w-0 max-w-[340px] flex-shrink-0 snap-center">
+            <div className="w-full min-w-0 flex-shrink-0">
               <StoryFrame
                 innerRef={cardRefs[1]}
-                index={1}
                 kicker="Mi Sello Profesional"
-                selected={selectedIndex === 1}
-                onSelect={() => setSelectedIndex(1)}
                 footer={<DefaultFooter />}
               >
                 <div className="flex min-w-0 flex-col items-center gap-1.5 text-center">
@@ -456,13 +455,10 @@ export default function ShareCard({
             </div>
 
             {/* Historia 3: Resultados del Quiz de Orientación */}
-            <div className="w-[85%] min-w-0 max-w-[340px] flex-shrink-0 snap-center">
+            <div className="w-full min-w-0 flex-shrink-0">
               <StoryFrame
                 innerRef={cardRefs[2]}
-                index={2}
                 kicker="Mi Radar de Afinidad"
-                selected={selectedIndex === 2}
-                onSelect={() => setSelectedIndex(2)}
                 footer={
                   <span className="rounded-full bg-white/10 px-4 py-1.5 text-[11px] font-bold text-white backdrop-blur-md">
                     Descubre el tuyo en adipa.cl ✨
@@ -495,6 +491,34 @@ export default function ShareCard({
                 </div>
               </StoryFrame>
             </div>
+              </div>
+            </div>
+
+            {/* Flechas de navegación: absolutas dentro del marco oscuro,
+                avanzan/retroceden entre las 3 Historias sin dar la vuelta
+                (deshabilitadas visualmente en los extremos). */}
+            <button
+              type="button"
+              onClick={() => setSelectedIndex((i) => Math.max(0, i - 1))}
+              disabled={selectedIndex === 0}
+              aria-label="Historia anterior"
+              className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-secondary-navy/60 text-white shadow-lg ring-1 ring-white/30 backdrop-blur-md transition hover:bg-secondary-navy/80 disabled:cursor-not-allowed disabled:opacity-0"
+            >
+              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+                <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedIndex((i) => Math.min(2, i + 1))}
+              disabled={selectedIndex === 2}
+              aria-label="Historia siguiente"
+              className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-secondary-navy/60 text-white shadow-lg ring-1 ring-white/30 backdrop-blur-md transition hover:bg-secondary-navy/80 disabled:cursor-not-allowed disabled:opacity-0"
+            >
+              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+                <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
           </div>
 
           <div className="flex items-center justify-center gap-2">
