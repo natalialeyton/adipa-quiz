@@ -13,12 +13,24 @@ const STEPS = {
   RESULTS: "results",
 };
 
+// Configuración por defecto (equivale al Quiz original: 25 preguntas,
+// objetivo "descubrir tu área"), por si algo llegara a saltarse Landing.
+const DEFAULT_QUIZ_CONFIG = { goal: "DESCUBRIR", questionCount: 25 };
+
 export default function AppFlow() {
   const [step, setStep] = useState(STEPS.LANDING);
   const [userData, setUserData] = useState(null);
   const [quizResult, setQuizResult] = useState(null);
+  // Objetivo ("DESCUBRIR" o "VALIDAR") + cantidad de preguntas elegidos en
+  // Landing (Paso 1 y Paso 2). Vive en el estado global de AppFlow porque
+  // QuizModule lo necesita para armar la sesión y ResultScreen/ShareCard
+  // lo necesitan después para adaptar el informe final y el Social Kit.
+  const [quizConfig, setQuizConfig] = useState(DEFAULT_QUIZ_CONFIG);
 
-  const handleStart = () => {
+  const handleStart = (config) => {
+    if (config?.goal && config?.questionCount) {
+      setQuizConfig(config);
+    }
     setStep(STEPS.ONBOARDING);
   };
 
@@ -35,6 +47,7 @@ export default function AppFlow() {
   const handleRestart = () => {
     setUserData(null);
     setQuizResult(null);
+    setQuizConfig(DEFAULT_QUIZ_CONFIG);
     setStep(STEPS.LANDING);
   };
 
@@ -47,13 +60,18 @@ export default function AppFlow() {
       )}
 
       {step === STEPS.QUIZ && (
-        <QuizModule userData={userData} onComplete={handleQuizComplete} />
+        <QuizModule
+          userData={userData}
+          questionCount={quizConfig.questionCount}
+          onComplete={handleQuizComplete}
+        />
       )}
 
       {step === STEPS.RESULTS && (
         <ResultScreen
           userData={userData}
           quizResult={quizResult}
+          goal={quizConfig.goal}
           onRestart={handleRestart}
         />
       )}

@@ -472,8 +472,13 @@ export async function getPodcastEpisodesBySubspecialty(subcategoryId, { limit = 
 }
 
 // Número de "oportunidades" en las que cada una de las 5 Escuelas
-// aparece como opción a lo largo del Quiz (ver components/QuizModule.jsx):
-// 25 preguntas, cada escuela excluida exactamente 5 veces => 20.
+// aparece como opción a lo largo del Quiz (ver components/QuizModule.jsx).
+// Con el Quiz original de 25 preguntas fijas, cada escuela quedaba
+// excluida exactamente 5 veces => 20. Ahora que Landing permite elegir
+// duración (Express 10 / Estándar 15 / Profundo 25), este valor es solo
+// el respaldo por defecto: QuizModule.jsx calcula y entrega el valor real
+// de la sesión en `quizResult.schoolOpportunities`, que es lo que
+// getTopAreas() debe usar cuando está disponible.
 export const SCHOOL_MATCH_OPPORTUNITIES = 20;
 
 /**
@@ -484,17 +489,20 @@ export const SCHOOL_MATCH_OPPORTUNITIES = 20;
  * Afinidad" en ShareCard.
  *
  * @param {Record<string, number>} scores
+ * @param {number} opportunities - veces que cada escuela estuvo disponible
+ *   en la sesión (quizResult.schoolOpportunities); varía según la
+ *   duración del Quiz elegida en Landing (10/15/25 preguntas).
  * @param {number} limit
  * @returns {Array<{id: string, name: string, color: string, percent: number}>}
  */
-export function getTopAreas(scores, limit = 3) {
+export function getTopAreas(scores, opportunities = SCHOOL_MATCH_OPPORTUNITIES, limit = 3) {
   if (!scores) return [];
 
   return Object.entries(scores)
     .map(([schoolId, score]) => {
       const school = SCHOOLS[schoolId];
       if (!school) return null;
-      const percent = Math.min(100, Math.round((score / SCHOOL_MATCH_OPPORTUNITIES) * 100));
+      const percent = Math.min(100, Math.round((score / opportunities) * 100));
       return { id: schoolId, name: school.name, color: school.color, percent };
     })
     .filter(Boolean)

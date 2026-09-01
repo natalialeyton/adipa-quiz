@@ -213,7 +213,12 @@ export default function ShareCard({
   programs = [],
   strengths = [],
   topAreas = [],
+  goal = "DESCUBRIR",
 }) {
+  // "VALIDAR" = llegó desde "Ya sé mi área" en Landing: las 3 Historias
+  // deben hablar de potenciar/profundizar una ruta ya elegida, no de
+  // descubrirla desde cero.
+  const isValidating = goal === "VALIDAR";
   const cardRefs = [useRef(null), useRef(null), useRef(null)];
   const toastTimeoutRef = useRef(null);
 
@@ -390,7 +395,7 @@ export default function ShareCard({
             <div className="w-full min-w-0 flex-shrink-0">
               <StoryFrame
                 innerRef={cardRefs[0]}
-                kicker="Mi Ruta de Especialización"
+                kicker={isValidating ? "Mi Ruta de Profundización" : "Mi Ruta de Especialización"}
                 footer={
                   <span className="rounded-full bg-white px-6 py-2 text-sm font-bold text-secondary-navy shadow-md">
                     Ver perfil ⌃
@@ -398,7 +403,7 @@ export default function ShareCard({
                 }
               >
                 <h3 className="line-clamp-2 break-words text-xl font-extrabold leading-tight text-white sm:text-2xl">
-                  MIS 3 RECOMENDADOS
+                  {isValidating ? "MIS 3 PRÓXIMOS PASOS" : "MIS 3 RECOMENDADOS"}
                 </h3>
                 {topPrograms.length > 0 ? (
                   <ol className="flex min-w-0 flex-col gap-4">
@@ -429,7 +434,7 @@ export default function ShareCard({
             <div className="w-full min-w-0 flex-shrink-0">
               <StoryFrame
                 innerRef={cardRefs[1]}
-                kicker="Mi Sello Profesional"
+                kicker={isValidating ? "Mi Sello de Especialista" : "Mi Sello Profesional"}
                 footer={<DefaultFooter />}
               >
                 <div className="flex min-w-0 flex-col items-center gap-3 text-center">
@@ -468,16 +473,16 @@ export default function ShareCard({
             <div className="w-full min-w-0 flex-shrink-0">
               <StoryFrame
                 innerRef={cardRefs[2]}
-                kicker="Mi Radar de Afinidad"
+                kicker={isValidating ? "Mi Nivel de Especialización" : "Mi Radar de Afinidad"}
                 footer={
                   <span className="rounded-full bg-white/10 px-5 py-2 text-sm font-bold text-white backdrop-blur-md">
-                    Descubre el tuyo en adipa.cl ✨
+                    {isValidating ? "Sigue profundizando en adipa.cl ✨" : "Descubre el tuyo en adipa.cl ✨"}
                   </span>
                 }
               >
                 <div className="flex min-w-0 flex-col items-center gap-4 text-center">
                   <h3 className="line-clamp-2 max-w-full break-words text-lg font-extrabold uppercase leading-tight text-white sm:text-xl">
-                    Resultados del Quiz de Orientación
+                    {isValidating ? "Resultados de tu Profundización" : "Resultados del Quiz de Orientación"}
                   </h3>
                   <DonutGauge percent={matchPercent ?? 0} label={areaLabel} />
                   {secondaryAreas.length > 0 && (

@@ -205,7 +205,11 @@ function NewsletterBanner() {
   );
 }
 
-export default function ResultScreen({ userData, quizResult, onRestart }) {
+export default function ResultScreen({ userData, quizResult, goal = "DESCUBRIR", onRestart }) {
+  // "VALIDAR" = llegó desde "Ya sé mi área" en Landing: el informe debe
+  // sonar a confirmar y profundizar una ruta ya elegida, no a
+  // descubrirla desde cero.
+  const isValidating = goal === "VALIDAR";
   const [programs, setPrograms] = useState([]);
   const [programsFallbackUrl, setProgramsFallbackUrl] = useState(null);
   const [seminars, setSeminars] = useState([]);
@@ -222,7 +226,7 @@ export default function ResultScreen({ userData, quizResult, onRestart }) {
     educationLevel: userData?.educationLevel,
   });
   const matchPercent = typeof quizResult?.matchPercent === "number" ? quizResult.matchPercent : null;
-  const topAreas = getTopAreas(quizResult?.scores);
+  const topAreas = getTopAreas(quizResult?.scores, quizResult?.schoolOpportunities);
 
   useEffect(() => {
     if (!quizResult?.subspecialtyId) {
@@ -301,7 +305,9 @@ export default function ResultScreen({ userData, quizResult, onRestart }) {
               ¡Hola, {firstName || "colega"}! 👋
             </h1>
             <p className="text-sm text-secondary-light/80 sm:text-base">
-              Este es el perfil que mejor se alinea contigo:
+              {isValidating
+                ? "Confirmamos tu enfoque y así puedes llevarlo al siguiente nivel:"
+                : "Este es el perfil que mejor se alinea contigo:"}
             </p>
           </div>
 
@@ -324,9 +330,10 @@ export default function ResultScreen({ userData, quizResult, onRestart }) {
 
             <div className="flex flex-col gap-2 rounded-xl bg-white/10 p-4 backdrop-blur-md">
               <h3 className="text-xs font-bold uppercase tracking-wide text-white/80">
-                🔍 Análisis de Tu Perfil
+                {isValidating ? "🔍 Validación de tu Enfoque" : "🔍 Análisis de Tu Perfil"}
               </h3>
               <p className="text-sm leading-relaxed text-white/95 sm:text-base">
+                {isValidating && `Confirmamos que tu enfoque en ${subspecialty.label} es sólido. `}
                 {insights?.analysis ?? buildFallbackExplanation(school, subspecialty)}
               </p>
             </div>
@@ -350,7 +357,7 @@ export default function ResultScreen({ userData, quizResult, onRestart }) {
             {insights?.recommendation && (
               <div className="flex flex-col gap-2 rounded-xl bg-white/10 p-4 backdrop-blur-md">
                 <h3 className="text-xs font-bold uppercase tracking-wide text-white/80">
-                  🚀 Recomendación Profesional
+                  {isValidating ? "🚀 Tu Siguiente Nivel" : "🚀 Recomendación Profesional"}
                 </h3>
                 <p className="text-sm leading-relaxed text-white/95 sm:text-base">
                   {insights.recommendation}
@@ -362,7 +369,7 @@ export default function ResultScreen({ userData, quizResult, onRestart }) {
           {/* Perfecciónate con ADIPA */}
           <section className="flex flex-col gap-4">
             <h2 className="text-lg font-semibold text-white sm:text-xl">
-              Perfecciónate con ADIPA
+              {isValidating ? "Profundiza tu Especialización" : "Perfecciónate con ADIPA"}
             </h2>
             {loading ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -463,6 +470,7 @@ export default function ResultScreen({ userData, quizResult, onRestart }) {
         programs={programs}
         strengths={insights?.strengths ?? []}
         topAreas={topAreas}
+        goal={goal}
       />
 
       {/* Adipados Podcast + TikTok */}

@@ -5,16 +5,18 @@
 // Motor del Quiz. Evalúa 4 dimensiones (trayectoria, intereses,
 // conocimientos y estilo de trabajo) y en cada pregunta rota 4 de las 5
 // Escuelas Oficiales de ADIPA (se excluye una escuela distinta por
-// pregunta, en un ciclo de 5). La app siempre presenta 25 preguntas —una
-// por cada "slot" del ciclo escuela×dimensión— por lo que cada escuela
-// queda excluida exactamente 5 veces y presente en las otras 20: una
-// rotación proporcional y pareja que NO cambia sin importar el orden o el
-// texto de las preguntas.
+// pregunta, en un ciclo de 5).
 //
-// Dentro de cada escuela, las 4 sub-especialidades también rotan de forma
-// pareja (cada una aparece exactamente 5 veces en las 20 preguntas donde
-// participa esa escuela). Los IDs de sub-especialidad usados aquí deben
-// coincidir con las claves de SUBSPECIALTIES en services/adipaApi.js.
+// La cantidad de preguntas de la sesión (`questionCount`) llega desde
+// Landing (Paso 2: Express 10 / Estándar 15 / Profundo 25) y es siempre
+// un múltiplo de 5 -por diseño-, así que el mismo ciclo escuela×dimensión
+// sigue siendo parejo sin importar la duración elegida: cada escuela
+// queda excluida exactamente questionCount/5 veces y presente en las
+// otras questionCount - questionCount/5, y dentro de cada escuela sus 4
+// sub-especialidades también rotan parejo (questionCount*4/5/4 veces cada
+// una: 2 en Express, 3 en Estándar, 5 en Profundo). Los IDs de
+// sub-especialidad usados aquí deben coincidir con las claves de
+// SUBSPECIALTIES en services/adipaApi.js.
 //
 // Aleatorización por sesión: cada slot (escuela excluida + dimensión) se
 // redacta con un enunciado elegido al azar desde un banco más amplio de
@@ -36,7 +38,10 @@ const SCHOOL_ORDER = [
 
 const DIMENSION_ORDER = ["trayectoria", "intereses", "conocimientos", "estilo_trabajo"];
 
-const TOTAL_QUESTIONS = 25;
+// Duraciones válidas del Quiz (Landing Paso 2). Todas son múltiplos de 5
+// -el tamaño del ciclo de escuelas-, lo que mantiene la rotación pareja
+// sin importar cuál se elija.
+const DEFAULT_QUESTION_COUNT = 25;
 
 // Banco de enunciados por dimensión (más variantes de las que se usan por
 // sesión), para poder aleatorizar el texto de cada pregunta sin alterar
@@ -297,12 +302,13 @@ function shuffleArray(array) {
   return result;
 }
 
-// Construye las 25 preguntas de una sesión. La estructura de slots
-// (dimensión + escuela excluida por índice) es SIEMPRE la misma -eso es
-// lo que garantiza la ponderación pareja-; lo único aleatorio por sesión
-// es qué enunciado se usa por slot, el orden de las opciones dentro de
-// cada pregunta, y el orden final en que se presentan las 25 preguntas.
-function buildQuestions() {
+// Construye las preguntas de una sesión (totalQuestions: 10, 15 o 25). La
+// estructura de slots (dimensión + escuela excluida por índice) es
+// SIEMPRE la misma -eso es lo que garantiza la ponderación pareja para
+// cualquier duración-; lo único aleatorio por sesión es qué enunciado se
+// usa por slot, el orden de las opciones dentro de cada pregunta, y el
+// orden final en que se presentan las preguntas.
+function buildQuestions(totalQuestions = DEFAULT_QUESTION_COUNT) {
   const subspecialtyCursor = Object.fromEntries(SCHOOL_ORDER.map((school) => [school, 0]));
 
   // Banco de enunciados barajado por dimensión, para no repetir dentro de
@@ -312,7 +318,7 @@ function buildQuestions() {
   );
   const promptCursor = Object.fromEntries(DIMENSION_ORDER.map((dimension) => [dimension, 0]));
 
-  const questions = Array.from({ length: TOTAL_QUESTIONS }).map((_, index) => {
+  const questions = Array.from({ length: totalQuestions }).map((_, index) => {
     const dimension = DIMENSION_ORDER[index % DIMENSION_ORDER.length];
     const excludedSchool = SCHOOL_ORDER[index % SCHOOL_ORDER.length];
     const includedSchools = SCHOOL_ORDER.filter((school) => school !== excludedSchool);
@@ -363,12 +369,13 @@ function pickWinningSubspecialty(winningSchool, subspecialtyScores) {
   }, candidates[0]);
 }
 
-export default function QuizModule({ userData, onComplete }) {
+export default function QuizModule({ userData, questionCount = DEFAULT_QUESTION_COUNT, onComplete }) {
   // Preguntas de esta sesión: se calculan una sola vez al montar el
-  // componente (init perezoso de useState), así el orden y los
+  // componente (init perezoso de useState) con la duración elegida en
+  // Landing (Express 10 / Estándar 15 / Profundo 25), así el orden y los
   // enunciados quedan fijos mientras se responde el test, pero cambian
   // cada vez que alguien empieza el Quiz de nuevo.
-  const [questions] = useState(() => buildQuestions());
+  const [questions] = useState(() => buildQuestions(questionCount));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState(() =>
     Object.fromEntries(SCHOOL_ORDER.map((school) => [school, 0]))
@@ -377,7 +384,7 @@ export default function QuizModule({ userData, onComplete }) {
 
   const firstName = userData?.fullName?.split(" ")[0];
   const currentQuestion = questions[currentIndex];
-  const progressPercent = Math.round(((currentIndex + 1) / TOTAL_QUESTIONS) * 100);
+  const progressPercent = Math.round(((currentIndex + 1) / questions.length) * 100);
 
   if (!currentQuestion) return null;
 
@@ -401,11 +408,13 @@ export default function QuizModule({ userData, onComplete }) {
     const winningSubspecialty = pickWinningSubspecialty(winningSchool, nextSubspecialtyScores);
 
     // % de afinidad: cuántas veces se eligió la escuela ganadora sobre el
-    // total de veces que estuvo disponible como opción (20 de las 25
-    // preguntas, ya que cada escuela queda excluida exactamente 5 veces).
-    // Es una medida precisa y estable, invariante al orden o selección de
-    // preguntas, porque esa proporción (20 oportunidades) nunca cambia.
-    const schoolOpportunities = TOTAL_QUESTIONS - TOTAL_QUESTIONS / SCHOOL_ORDER.length;
+    // total de veces que estuvo disponible como opción (questions.length
+    // menos las veces que quedó excluida, siempre 1/5 del total ya que
+    // questionCount es múltiplo de 5). Es una medida precisa y estable,
+    // invariante al orden o selección de preguntas dentro de la sesión, y
+    // se recalcula según la duración elegida (10, 15 o 25 preguntas) en
+    // vez de asumir siempre 25.
+    const schoolOpportunities = questions.length - questions.length / SCHOOL_ORDER.length;
     const matchPercent = Math.min(
       100,
       Math.round((nextScores[winningSchool] / schoolOpportunities) * 100)
@@ -416,6 +425,8 @@ export default function QuizModule({ userData, onComplete }) {
       subspecialtyId: winningSubspecialty.id,
       scores: nextScores,
       matchPercent,
+      questionCount: questions.length,
+      schoolOpportunities,
     });
   };
 
