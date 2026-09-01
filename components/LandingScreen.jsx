@@ -17,7 +17,7 @@
 //   AppFlow.jsx arme la sesión del Quiz.
 
 import { useState } from "react";
-import CerebritoMascot from "./CerebritoMascot";
+import IdeaBulbPopUp from "./IdeaBulbPopUp";
 
 const SITUATION_OPTIONS = [
   {
@@ -66,7 +66,7 @@ export default function LandingScreen({ onStart }) {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-secondary-navy p-8 text-center text-white shadow-md sm:p-12">
+    <div className="relative overflow-hidden rounded-2xl bg-secondary-navy p-8 pb-44 text-center text-white shadow-md sm:p-12 sm:pb-36">
       {/* Halos decorativos, estilo Wrapped */}
       <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary-purple/30 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-primary-cyan/20 blur-3xl" />
@@ -81,12 +81,6 @@ export default function LandingScreen({ onStart }) {
             especialidad que ya elegiste.
           </p>
         </div>
-
-        {/* Cerebrito ADIPA: mascota animada + dato curioso. En móvil queda
-            centrado justo sobre el título/antes del Paso 1, sin tapar
-            nunca las tarjetas de decisión; en escritorio se acomoda al
-            costado, junto al título. */}
-        <CerebritoMascot />
 
         {/* Paso 1: Selección de Situación Inicial */}
         <div className="flex w-full max-w-md flex-col gap-3">
@@ -159,6 +153,13 @@ export default function LandingScreen({ onStart }) {
           </span>
         )}
       </div>
+
+      {/* 💡 Ampolleta de Ideas: recorre el pie de la pantalla y comparte
+          datos curiosos. Vive fuera del flujo de contenido (posición
+          absoluta dentro de este contenedor) y el padding-bottom extra
+          de arriba (pb-44/sm:pb-36) le reserva su propio carril para que
+          el pop-up nunca tape las tarjetas de Paso 1/Paso 2. */}
+      <IdeaBulbPopUp />
     </div>
   );
 }
