@@ -45,6 +45,20 @@ body {
   }
 }
 
+/* Carruseles de recomendaciones del informe de resultados
+   (ResultScreen.jsx: Top 3 Programas / Top 3 Seminarios / Recursos
+   Gratuitos). Oculta la barra de scroll nativa del navegador -la
+   navegación real es con los botones [ ◄ ] [ ► ] o gesto táctil- para que
+   se lea como "cajitas deslizables" y no como una lista con scrollbar. */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Ampolleta de Ideas ---------------------------------------------------
    Pop-up interactivo de LandingScreen.jsx (components/IdeaBulbPopUp.jsx):
    una ampolleta/bombilla ilustrada en SVG propia que se desliza por el
